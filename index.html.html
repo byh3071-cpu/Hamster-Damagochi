@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pixel Hamster Tama</title>
+  <style>
+    :root{
+      --bg:#0c1020;
+      --panel:#121a33;
+      --panel2:#0f1630;
+      --line:#2a3566;
+      --text:#d7e0ff;
+      --muted:#93a2d8;
+      --accent:#7cffb2;
+      --accent2:#7cc7ff;
+      --danger:#ff6b8a;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      background:
+        radial-gradient(1200px 600px at 50% 30%, #18224a 0%, rgba(24,34,74,0) 60%),
+        linear-gradient(180deg, #070a16 0%, var(--bg) 60%);
+      color:var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    .frame{
+      width:min(560px, 92vw);
+      border:2px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.12));
+      border-radius:14px;
+      padding:16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+    }
+    .top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:12px;
+    }
+    .title{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .title b{font-size:14px; letter-spacing:.4px;}
+    .title span{font-size:12px; color:var(--muted)}
+    .chip{
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.08));
+      padding:8px 10px;
+      border-radius:10px;
+      font-size:12px;
+      color:var(--muted);
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .chip i{font-style:normal; color:var(--text)}
+    .screen{
+      border:2px solid var(--line);
+      background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
+      border-radius:14px;
+      padding:14px;
+    }
+
+    .game{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+      place-items:center;
+    }
+
+    /* ✅ 픽셀 느낌: 캔버스 확대 시 뭉개지지 않게 */
+    canvas{
+      width: 300px;
+      height: 300px;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      border:2px solid var(--line);
+      border-radius:12px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.1)),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 2px, rgba(255,255,255,0) 2px 6px);
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,.2);
+      overflow:hidden;
+    }
+
+    .barWrap{
+      width:100%;
+      display:grid;
+      gap:8px;
+    }
+    .barRow{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .bar{
+      width:100%;
+      height:16px;
+      border:2px solid var(--line);
+      border-radius:10px;
+      overflow:hidden;
+      background: rgba(0,0,0,.22);
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,.18);
+    }
+    .bar > .fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent2) 100%);
+      box-shadow: 0 0 18px rgba(124,255,178,.35);
+      transition: width 180ms ease;
+    }
+
+    .actions{
+      width:100%;
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      flex-wrap:wrap;
+      margin-top:6px;
+    }
+    button{
+      border:2px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.14));
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      font-size:12px;
+      cursor:pointer;
+      letter-spacing:.2px;
+      min-width: 120px;
+    }
+    button:hover{ filter: brightness(1.08); }
+    button:active{ transform: translateY(1px); }
+    .ghost{ color:var(--muted); }
+
+    .hint{
+      margin-top:10px;
+      font-size:11px;
+      line-height:1.55;
+      color:var(--muted);
+      text-align:center;
+    }
+
+    /* 진화 연출: 화면 플래시 */
+    .flash{
+      position:relative;
+    }
+    .flash::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:14px;
+      background: rgba(255,255,255,0);
+      pointer-events:none;
+      transition: background 120ms ease;
+    }
+    .flash.on::after{
+      background: rgba(255,255,255,.18);
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="top">
+      <div class="title">
+        <b>PIXEL HAMSTER</b>
+        <span>exp 100 → evolve</span>
+      </div>
+      <div class="chip">
+        LV <i id="lv">1</i>
+        <span>·</span>
+        <span>STATE: <i id="state">baby</i></span>
+      </div>
+    </div>
+
+    <div class="screen flash" id="screen">
+      <div class="game">
+        <canvas id="cv" width="160" height="160" aria-label="pixel hamster"></canvas>
+
+        <div class="barWrap">
+          <div class="barRow">
+            <span>EXP</span>
+            <span><b id="expText">0</b>/100</span>
+          </div>
+          <div class="bar"><div class="fill" id="fill"></div></div>
+        </div>
+
+        <div class="actions">
+          <button id="btnAdd">루틴 완료(+10)</button>
+          <button class="ghost" id="btnSmall">작은 행동(+3)</button>
+          <button class="ghost" id="btnReset">리셋</button>
+        </div>
+
+        <div class="hint">
+          버튼은 “노션에서 할 일 완료 시 호출되는 이벤트”를 대신하는 더미 입력이야.<br/>
+          나중엔 Notion DB 완료 이벤트 → /api → exp 증가로 연결하면 됨.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================
+    // 1) 상태값
+    // =========================
+    const $ = (s)=>document.querySelector(s);
+    const cv = $("#cv");
+    const ctx = cv.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+
+    const screen = $("#screen");
+    const expText = $("#expText");
+    const fill = $("#fill");
+    const lvEl = $("#lv");
+    const stateEl = $("#state");
+
+    let exp = 0;           // ✅ 요청한 exp 변수
+    let lv = 1;
+    let evolved = false;   // 진화 여부(1단계 예시)
+    let evolving = false;
+
+    // 파티클
+    let particles = [];
+
+    // =========================
+    // 2) 픽셀 스프라이트(96x96 캔버스에 1칸=4px로 그림)
+    // =========================
+    const PX = 4;
+
+    // 간단한 팔레트(레트로 톤)
+    const C = {
+      none: null,
+      outline: "#0b0f1f",
+      fur: "#f3c98b",
+      fur2:"#e7b070",
+      belly:"#ffe7c7",
+      ear: "#ffb7c8",
+      eye: "#141a35",
+      shine:"#ffffff",
+      leaf:"#7cffb2",
+      aura:"#7cc7ff",
+      crown:"#ffe66d",
+      blush:"#ff6b8a"
+    };
+
+    // 스프라이트는 "좌표를 칠하는 함수"로 단순화(짧고 관리 쉬움)
+    function drawHamsterBaby(offsetX=0, offsetY=0, shake=0){
+      // 바디
+      rect(10+offsetX+shake, 18+offsetY, 16, 16, C.fur, C.outline);
+      rect(12+offsetX+shake, 22+offsetY, 12, 10, C.belly, null);
+
+      // 귀
+      rect(9+offsetX+shake, 16+offsetY, 5, 5, C.fur, C.outline);
+      rect(23+offsetX+shake, 16+offsetY, 5, 5, C.fur, C.outline);
+      rect(10+offsetX+shake, 17+offsetY, 3, 3, C.ear, null);
+      rect(24+offsetX+shake, 17+offsetY, 3, 3, C.ear, null);
+
+      // 볼
+      rect(12+offsetX+shake, 27+offsetY, 2, 2, C.blush, null);
+      rect(22+offsetX+shake, 27+offsetY, 2, 2, C.blush, null);
+
+      // 눈
+      dot(15+offsetX+shake, 24+offsetY, C.eye);
+      dot(21+offsetX+shake, 24+offsetY, C.eye);
+      dot(15+offsetX+shake, 23+offsetY, C.shine);
+      dot(21+offsetX+shake, 23+offsetY, C.shine);
+
+      // 코
+      dot(18+offsetX+shake, 26+offsetY, C.outline);
+
+      // 발
+      rect(12+offsetX+shake, 34+offsetY, 5, 3, C.fur2, C.outline);
+      rect(19+offsetX+shake, 34+offsetY, 5, 3, C.fur2, C.outline);
+
+      // 꼬리
+      rect(26+offsetX+shake, 28+offsetY, 3, 3, C.fur2, C.outline);
+    }
+
+    function drawHamsterEvolved(offsetX=0, offsetY=0, shake=0){
+      // 조금 더 큰 바디 + 왕관 + 오라
+      // 오라(뒤)
+      rect(8+offsetX+shake, 16+offsetY, 20, 20, "rgba(124,199,255,.20)", null);
+
+      // 바디
+      rect(9+offsetX+shake, 18+offsetY, 18, 18, C.fur, C.outline);
+      rect(12+offsetX+shake, 23+offsetY, 12, 11, C.belly, null);
+
+      // 귀
+      rect(8+offsetX+shake, 15+offsetY, 6, 6, C.fur, C.outline);
+      rect(23+offsetX+shake, 15+offsetY, 6, 6, C.fur, C.outline);
+      rect(9+offsetX+shake, 16+offsetY, 4, 4, C.ear, null);
+      rect(24+offsetX+shake, 16+offsetY, 4, 4, C.ear, null);
+
+      // 왕관
+      rect(14+offsetX+shake, 12+offsetY, 8, 4, C.crown, C.outline);
+      dot(15+offsetX+shake, 11+offsetY, C.crown);
+      dot(18+offsetX+shake, 10+offsetY, C.crown);
+      dot(21+offsetX+shake, 11+offsetY, C.crown);
+
+      // 눈(더 반짝)
+      dot(15+offsetX+shake, 25+offsetY, C.eye);
+      dot(21+offsetX+shake, 25+offsetY, C.eye);
+      dot(14+offsetX+shake, 24+offsetY, C.shine);
+      dot(20+offsetX+shake, 24+offsetY, C.shine);
+
+      // 코
+      dot(18+offsetX+shake, 27+offsetY, C.outline);
+
+      // 발
+      rect(12+offsetX+shake, 36+offsetY, 6, 3, C.fur2, C.outline);
+      rect(19+offsetX+shake, 36+offsetY, 6, 3, C.fur2, C.outline);
+
+      // 잎사귀 장식
+      rect(26+offsetX+shake, 28+offsetY, 3, 5, C.leaf, C.outline);
+      dot(27+offsetX+shake, 27+offsetY, C.leaf);
+    }
+
+    // =========================
+    // 3) 도형 유틸 (grid 좌표 기반)
+    // =========================
+    function clear(){
+      ctx.clearRect(0,0,cv.width,cv.height);
+      // 배경 점무늬(레트로)
+      for(let y=0; y<cv.height; y+=8){
+        for(let x=0; x<cv.width; x+=8){
+          ctx.fillStyle = ( (x+y) % 16 === 0) ? "rgba(255,255,255,.04)" : "rgba(0,0,0,0)";
+          ctx.fillRect(x,y,2,2);
+        }
+      }
+    }
+
+    function rect(gx, gy, gw, gh, fillColor, strokeColor){
+      const x = gx*PX, y = gy*PX, w = gw*PX, h = gh*PX;
+      if(fillColor){
+        ctx.fillStyle = fillColor;
+        ctx.fillRect(x,y,w,h);
+      }
+      if(strokeColor){
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = PX; // 굵게
+        ctx.strokeRect(x+PX/2, y+PX/2, w-PX, h-PX);
+      }
+    }
+
+    function dot(gx, gy, color){
+      const x = gx*PX, y = gy*PX;
+      ctx.fillStyle = color;
+      ctx.fillRect(x,y,PX,PX);
+    }
+
+    // =========================
+    // 4) EXP / UI 업데이트
+    // =========================
+    function updateUI(){
+      expText.textContent = String(exp);
+      fill.style.width = `${Math.min(100, exp)}%`;
+      lvEl.textContent = String(lv);
+      stateEl.textContent = evolved ? "evolved" : "baby";
+    }
+
+    function addExp(amount){
+      if(evolving) return;
+      exp = Math.min(100, exp + amount);
+      updateUI();
+      if(exp >= 100 && !evolved){
+        evolve();
+      }
+    }
+
+    function resetAll(){
+      exp = 0;
+      lv = 1;
+      evolved = false;
+      evolving = false;
+      particles = [];
+      updateUI();
+    }
+
+    // =========================
+    // 5) 진화 애니메이션
+    // =========================
+    function spawnParticles(n=28){
+      const cx = cv.width/2, cy = cv.height/2;
+      for(let i=0;i<n;i++){
+        const a = Math.random()*Math.PI*2;
+        const s = 0.7 + Math.random()*2.2;
+        particles.push({
+          x: cx, y: cy,
+          vx: Math.cos(a)*s,
+          vy: Math.sin(a)*s,
+          life: 28 + Math.random()*18
+        });
+      }
+    }
+
+    async function evolve(){
+      evolving = true;
+      screen.classList.add("on");
+      spawnParticles(36);
+
+      // 플래시/흔들림 1.2초
+      const start = performance.now();
+      const dur = 1200;
+
+      await new Promise((resolve)=>{
+        function tick(now){
+          const t = Math.min(1, (now-start)/dur);
+          // 플래시 깜빡임
+          if(Math.floor(t*12)%2===0) screen.classList.add("on");
+          else screen.classList.remove("on");
+
+          // 마지막에 진화 확정
+          if(t>=1){
+            resolve();
+            return;
+          }
+          requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      });
+
+      screen.classList.remove("on");
+      evolved = true;
+      lv += 1;
+      exp = 0; // 진화 후 exp 초기화(원하면 carry 가능)
+      updateUI();
+
+      // 짧은 후광 파티클 추가
+      spawnParticles(18);
+      evolving = false;
+    }
+
+    // =========================
+    // 6) 렌더 루프
+    // =========================
+    function render(){
+      clear();
+
+// ✅ 스프라이트 크기(그리드 단위) 기반 자동 중앙정렬
+const spr = evolved
+  ? { w: 34, h: 32 }   // evolved 대략 바운딩
+  : { w: 32, h: 30 };  // baby 대략 바운딩
+
+const baseX = Math.floor((cv.width / PX - spr.w) / 2);
+const baseY = Math.floor((cv.height / PX - spr.h) / 2);
+
+
+      // 흔들림(진화 중에만)
+      let shake = 0;
+      if(evolving){
+        shake = (Math.random() < 0.5 ? -1 : 1) * (Math.random() < 0.7 ? 1 : 2);
+      }
+
+      // 캐릭터
+      if(evolved) drawHamsterEvolved(baseX, baseY, shake);
+      else drawHamsterBaby(baseX, baseY, shake);
+
+      // 파티클
+      for(const p of particles){
+        ctx.fillStyle = "rgba(124,255,178,.85)";
+        ctx.fillRect(p.x, p.y, 2, 2);
+        ctx.fillStyle = "rgba(124,199,255,.75)";
+        ctx.fillRect(p.x+2, p.y+2, 2, 2);
+      }
+
+      // 파티클 업데이트
+      particles = particles
+        .map(p=>({
+          ...p,
+          x: p.x + p.vx*2,
+          y: p.y + p.vy*2,
+          vx: p.vx*0.98,
+          vy: p.vy*0.98,
+          life: p.life - 1
+        }))
+        .filter(p=>p.life>0);
+
+      requestAnimationFrame(render);
+    }
+
+    // =========================
+    // 7) 이벤트 바인딩
+    // =========================
+    $("#btnAdd").addEventListener("click", ()=>addExp(10));
+    $("#btnSmall").addEventListener("click", ()=>addExp(3));
+    $("#btnReset").addEventListener("click", resetAll);
+
+    // 초기화
+    updateUI();
+    render();
+  </script>
+</body>
+</html>
