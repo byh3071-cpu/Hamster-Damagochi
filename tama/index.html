@@ -3,501 +3,503 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Pixel Hamster Tama</title>
-  <style>
+  <title>Hamster Damagochi Widget</title>
+
+  <!-- ✅ 픽셀 폰트 (LEVEL 표시용) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <style>
     :root{
-      --bg:#0c1020;
-      --panel:#121a33;
-      --panel2:#0f1630;
-      --line:#2a3566;
-      --text:#d7e0ff;
-      --muted:#93a2d8;
-      --accent:#7cffb2;
-      --accent2:#7cc7ff;
-      --danger:#ff6b8a;
+      --screen-inset: 8px;  /* ✅ 여기 숫자만 바꾸면 비침 조절됨(6~12 추천) */
+      /* =========================================================
+        ✅ 여기서 위치 조절하세요 (프레임 기준 좌표)
+        - 단위: px
+        - 기준: game-container (frame.png) 좌상단 (0,0)
+      ========================================================= */
+
+      /* 프레임 원본 크기 */
+      --frame-w: 673px;
+      --frame-h: 371px;
+
+      /* (A) 화면 구멍(원형) 위치/크기: bg와 캐릭터가 들어가는 영역 */
+      --screen-left: 170px;  /* 약간 오른쪽 */
+      --screen-top:  10px;   /* 위로 올림 */
+      --screen-size: 330px;  /* 살짝 줄임(삐져나옴 방지) */
+
+      /* (B) 캐릭터 위치/크기 (화면 구멍 안 기준) */
+      --ham-size: 300px; /* 크게 */
+      --ham-x: 50%;   /* 화면 구멍 내부에서 좌우(%) */
+      --ham-y: 68%;   /* 살짝 아래로 (발이 바닥에 닿는 느낌) */
+
+      /* (C) 오른쪽 버튼 3개(투명 클릭 영역) */
+      /* ◀ */
+      --btnL-left: 520px;
+      --btnL-top:  240px;
+      --btnL-w:    44px;
+      --btnL-h:    40px;
+
+      /* ■ (밥 주기) */
+      --btnC-left: 565px;
+      --btnC-top:  240px;
+      --btnC-w:    48px;
+      --btnC-h:    40px;
+
+      /* ▶ (쓰다듬기) */
+      --btnR-left: 613px;
+      --btnR-top:  240px;
+      --btnR-w:    48px;
+      --btnR-h:    40px;
+
+      /* (D) EXP 바 슬롯(프레임 왼쪽 EXP 빈칸에 맞추기) */
+      --exp-left:  68px;
+      --exp-top:   254px;
+      --exp-w:     94px;
+      --exp-h:     13px;
+
+      /* (E) LEVEL 숫자 슬롯(프레임 왼쪽 LEVEL 빈칸에 맞추기) */
+      --lvl-left:  46px;
+      --lvl-top:   283px;
+
+      /* ========================================================= */
+
+      /* 색상 */
+      --bg: #0c1020;
+      --text: #e8ecff;
+      --muted: rgba(232,236,255,.75);
+      --bar-bg: rgba(0,0,0,.35);
+      --bar-fill1: #7cffb2;
+      --bar-fill2: #7cc7ff;
+
+      /* 버튼 클릭 피드백 */
+      --press-scale: 0.96;
+
+      /* 배경 미세 확대(가장자리 빈틈 방지) */
+      --bg-scale: 1.04;
     }
-    *{box-sizing:border-box}
+
+    *{ box-sizing:border-box; }
+    html, body { height: 100%; }
+
     body{
       margin:0;
-      min-height:100vh;
       display:grid;
       place-items:center;
       background:
         radial-gradient(1200px 600px at 50% 30%, #18224a 0%, rgba(24,34,74,0) 60%),
         linear-gradient(180deg, #070a16 0%, var(--bg) 60%);
       color:var(--text);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    }
-    .frame{
-      width:min(560px, 92vw);
-      border:2px solid var(--line);
-      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.12));
-      border-radius:14px;
-      padding:16px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.45);
-    }
-    .top{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:12px;
-    }
-    .title{
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-    }
-    .title b{font-size:14px; letter-spacing:.4px;}
-    .title span{font-size:12px; color:var(--muted)}
-    .chip{
-      border:1px solid var(--line);
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.08));
-      padding:8px 10px;
-      border-radius:10px;
-      font-size:12px;
-      color:var(--muted);
-      display:flex;
-      gap:10px;
-      align-items:center;
-    }
-    .chip i{font-style:normal; color:var(--text)}
-    .screen{
-      border:2px solid var(--line);
-      background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
-      border-radius:14px;
-      padding:14px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 12px;
     }
 
-    .game{
+    /* ✅ 노션 임베드/모바일 대응: JS가 scale을 계산해서 변수를 넣음 */
+    .wrap{
+      width: min(100%, var(--frame-w));
       display:grid;
-      grid-template-columns: 1fr;
-      gap:12px;
-      place-items:center;
+      justify-items:center;
     }
 
-    /* ✅ 픽셀 느낌: 캔버스 확대 시 뭉개지지 않게 */
-    canvas{
-      width: 300px;
-      height: 300px;
-      image-rendering: pixelated;
-      image-rendering: crisp-edges;
-      border:2px solid var(--line);
-      border-radius:12px;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.1)),
-        repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 2px, rgba(255,255,255,0) 2px 6px);
-      box-shadow: inset 0 0 0 2px rgba(0,0,0,.2);
-      overflow:hidden;
+    .game-container{
+      position: relative;
+      width: var(--frame-w);
+      height: var(--frame-h);
+      transform: scale(var(--scale, 1));
+      transform-origin: top center;
+      will-change: transform;
     }
 
-    .barWrap{
-      width:100%;
-      display:grid;
-      gap:8px;
-    }
-    .barRow{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      font-size:12px;
-      color:var(--muted);
-    }
-    .bar{
-      width:100%;
-      height:16px;
-      border:2px solid var(--line);
-      border-radius:10px;
+    /* ===== Layer 1 (z:10) - bg ===== */
+    .layer-bg{
+      position:absolute;
+      left: var(--screen-left);
+      top:  var(--screen-top);
+      width: var(--screen-size);
+      height: var(--screen-size);
+      z-index: 10;
       overflow:hidden;
-      background: rgba(0,0,0,.22);
-      box-shadow: inset 0 0 0 2px rgba(0,0,0,.18);
+      border-radius: 999px;
+      clip-path: circle(calc(50% - var(--screen-inset)) at 50% 50%);
+      pointer-events:none;
+      box-shadow: 0 0 0 6px rgba(0,0,0,0.0); /* 자리만 유지용(옵션) */
     }
-    .bar > .fill{
+    .layer-bg img{
+      width:100%;
       height:100%;
-      width:0%;
-      background: linear-gradient(90deg, var(--accent) 0%, var(--accent2) 100%);
-      box-shadow: 0 0 18px rgba(124,255,178,.35);
-      transition: width 180ms ease;
+      object-fit: cover;
+      transform: scale(var(--bg-scale));
+      image-rendering: pixelated;
+      user-select:none;
+      -webkit-user-drag:none;
     }
 
-    .actions{
-      width:100%;
-      display:flex;
-      gap:10px;
-      justify-content:center;
-      flex-wrap:wrap;
-      margin-top:6px;
+    /* ===== Layer 2 (z:20) - hamster ===== */
+    .layer-ham{
+      position:absolute;
+      left: var(--screen-left);
+      top:  var(--screen-top);
+      width: var(--screen-size);
+      height: var(--screen-size);
+      z-index: 20;
+      pointer-events:none;
+      overflow: hidden;
+      border-radius: 999px;
+      clip-path: circle(calc(50% - var(--screen-inset)) at 50% 50%);
     }
-    button{
-      border:2px solid var(--line);
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.14));
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:12px;
-      font-size:12px;
-      cursor:pointer;
-      letter-spacing:.2px;
-      min-width: 120px;
-    }
-    button:hover{ filter: brightness(1.08); }
-    button:active{ transform: translateY(1px); }
-    .ghost{ color:var(--muted); }
-
-    .hint{
-      margin-top:10px;
-      font-size:11px;
-      line-height:1.55;
-      color:var(--muted);
-      text-align:center;
+    .ham{
+      position:absolute;
+      left: var(--ham-x);
+      top:  var(--ham-y);
+      width: var(--ham-size);
+      height: var(--ham-size);
+      transform: translate(-50%,-50%);
+      image-rendering: pixelated;
+      user-select:none;
+      -webkit-user-drag:none;
     }
 
-    /* 진화 연출: 화면 플래시 */
-    .flash{
-      position:relative;
+    /* ✅ 기본 상태: 둥실둥실 */
+    .ham.bounce{
+      animation: breathe 2.6s ease-in-out infinite;
     }
-    .flash::after{
-      content:"";
+    @keyframes breathe{
+      0%,100%{ transform: translate(-50%,-50%) translateY(0); }
+      50%{     transform: translate(-50%,-50%) translateY(-6px); }
+    }
+
+    /* ===== Layer 3 (z:30) - frame ===== */
+    .layer-frame{
       position:absolute;
       inset:0;
-      border-radius:14px;
-      background: rgba(255,255,255,0);
+      z-index: 30;
       pointer-events:none;
-      transition: background 120ms ease;
     }
-    .flash.on::after{
-      background: rgba(255,255,255,.18);
+    .layer-frame img{
+      width:100%;
+      height:100%;
+      image-rendering: pixelated;
+      user-select:none;
+      -webkit-user-drag:none;
+    }
+
+    /* ===== Layer 4 (z:40) - UI overlay ===== */
+    .layer-ui{
+      position:absolute;
+      inset:0;
+      z-index: 40;
+    }
+
+    /* 투명 버튼들 */
+    .hit{
+      position:absolute;
+      background: rgba(255,255,255,0); /* 완전 투명 */
+      border-radius: 10px;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      transform-origin:center;
+    }
+    .hit:active{
+      transform: scale(var(--press-scale));
+    }
+
+    .hit.left{
+      left: var(--btnL-left);
+      top:  var(--btnL-top);
+      width: var(--btnL-w);
+      height:var(--btnL-h);
+    }
+    .hit.center{
+      left: var(--btnC-left);
+      top:  var(--btnC-top);
+      width: var(--btnC-w);
+      height:var(--btnC-h);
+    }
+    .hit.right{
+      left: var(--btnR-left);
+      top:  var(--btnR-top);
+      width: var(--btnR-w);
+      height:var(--btnR-h);
+    }
+
+    /* EXP 바 (프레임 왼쪽 슬롯에 맞춤) */
+    .exp-bar{
+      position:absolute;
+      left: var(--exp-left);
+      top:  var(--exp-top);
+      width: var(--exp-w);
+      height:var(--exp-h);
+      background: transparent;  /* ✅ 검은 배경 제거 */
+      border-radius: 3px;
+      overflow:hidden;
+      box-shadow: none;   /* ✅ 테두리도 제거(프레임 슬롯만 살리기) */
+      pointer-events:none;
+    }
+    .exp-fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, var(--bar-fill1), var(--bar-fill2));
+      transition: width 180ms ease;
+      box-shadow: 0 0 8px rgba(124,255,178,.18);
+    }
+
+    /* LEVEL 텍스트 */
+    .level{
+      position:absolute;
+      left: var(--lvl-left);
+      top:  var(--lvl-top);
+      font-family: "Press Start 2P", system-ui, sans-serif;
+      font-size: 9px;
+      letter-spacing: 0.5px;
+      color: rgba(255,255,255,.92);
+      text-shadow: 0 1px 0 rgba(0,0,0,.55);
+      pointer-events:none;
+      width: 96px;              /* ✅ LEVEL 슬롯 폭(여기만 미세조정) */
+      text-align: center;       /* ✅ 숫자 중앙정렬 */
+      line-height: 1;           /* 줄높이 영향 줄이기 */
+      height: 14px;            /* 슬롯 높이 느낌 */
+      display:flex;
+      align-items:center;
+      justify-content:flex-end; /* ✅ 큰 숫자도 오른쪽 기준으로 안정 */
+      padding-right: 6px;       /* 슬롯 안쪽 여백 */
+    }
+
+    /* 작은 상태 텍스트(디버그/옵션) */
+    .debug{
+      position:absolute;
+      left: 18px;
+      top:  18px;
+      font-size: 10px;
+      color: var(--muted);
+      pointer-events:none;
+      display:none; /* 필요하면 block */
+    }
+    /* ✅ 디버그: hitbox 보이기(토글) */
+    .debug-hit .hit{
+      outline: 1px dashed rgba(124,199,255,.9);
+      background: rgba(124,199,255,.12);
     }
   </style>
 </head>
+
 <body>
-  <div class="frame">
-    <div class="top">
-      <div class="title">
-        <b>PIXEL HAMSTER</b>
-        <span>exp 100 → evolve</span>
+  <div class="wrap">
+    <div class="game-container" id="game">
+      <!-- Layer 1 -->
+      <div class="layer-bg">
+        <img src="./assets/bg.png" alt="">
       </div>
-      <div class="chip">
-        LV <i id="lv">1</i>
-        <span>·</span>
-        <span>STATE: <i id="state">baby</i></span>
+
+      <!-- Layer 2 -->
+      <div class="layer-ham">
+        <img id="ham" class="ham bounce" src="./assets/normal.png" alt="hamster">
       </div>
-    </div>
 
-    <div class="screen flash" id="screen">
-      <div class="game">
-        <canvas id="cv" width="160" height="160" aria-label="pixel hamster"></canvas>
+      <!-- Layer 3 -->
+      <div class="layer-frame">
+        <img src="./assets/frame.png" alt="">
+      </div>
 
-        <div class="barWrap">
-          <div class="barRow">
-            <span>EXP</span>
-            <span><b id="expText">0</b>/100</span>
-          </div>
-          <div class="bar"><div class="fill" id="fill"></div></div>
+      <!-- Layer 4 -->
+      <div class="layer-ui">
+        <!-- Invisible buttons -->
+        <div class="hit left"   id="btnLeft"   aria-label="left button"></div>
+        <div class="hit center" id="btnFeed"   aria-label="feed button"></div>
+        <div class="hit right"  id="btnPet"    aria-label="pet button"></div>
+
+        <!-- EXP -->
+        <div class="exp-bar" aria-hidden="true">
+          <div class="exp-fill" id="expFill"></div>
         </div>
 
-        <div class="actions">
-          <button id="btnAdd">루틴 완료(+10)</button>
-          <button class="ghost" id="btnSmall">작은 행동(+3)</button>
-          <button class="ghost" id="btnReset">리셋</button>
-        </div>
+        <!-- LEVEL -->
+        <div class="level" id="lvlText">1</div>
 
-        <div class="hint">
-          버튼은 “노션에서 할 일 완료 시 호출되는 이벤트”를 대신하는 더미 입력이야.<br/>
-          나중엔 Notion DB 완료 이벤트 → /api → exp 증가로 연결하면 됨.
-        </div>
+        <!-- debug -->
+        <div class="debug" id="dbg"></div>
       </div>
     </div>
   </div>
 
   <script>
-    // =========================
-    // 1) 상태값
-    // =========================
-    const $ = (s)=>document.querySelector(s);
-    const cv = $("#cv");
-    const ctx = cv.getContext("2d");
-    ctx.imageSmoothingEnabled = false;
+    /* =========================================================
+      Hamster Damagochi Widget (Single File)
+      - localStorage로 EXP/LEVEL 유지
+      - Feed(■): exp +10, 2초 eat
+      - Pet(▶):  exp +5,  2초 happy
+      - normal 상태에서만 bounce
+    ========================================================= */
 
-    const screen = $("#screen");
-    const expText = $("#expText");
-    const fill = $("#fill");
-    const lvEl = $("#lv");
-    const stateEl = $("#state");
-
-    let exp = 0;           // ✅ 요청한 exp 변수
-    let lv = 1;
-    let evolved = false;   // 진화 여부(1단계 예시)
-    let evolving = false;
-
-    // 파티클
-    let particles = [];
-
-    // =========================
-    // 2) 픽셀 스프라이트(96x96 캔버스에 1칸=4px로 그림)
-    // =========================
-    const PX = 4;
-
-    // 간단한 팔레트(레트로 톤)
-    const C = {
-      none: null,
-      outline: "#0b0f1f",
-      fur: "#f3c98b",
-      fur2:"#e7b070",
-      belly:"#ffe7c7",
-      ear: "#ffb7c8",
-      eye: "#141a35",
-      shine:"#ffffff",
-      leaf:"#7cffb2",
-      aura:"#7cc7ff",
-      crown:"#ffe66d",
-      blush:"#ff6b8a"
+    const IMG = {
+      normal: "./assets/normal.png",
+      eat:    "./assets/eat.png",
+      happy:  "./assets/happy.png",
+      sad:    "./assets/sad.png",
     };
 
-    // 스프라이트는 "좌표를 칠하는 함수"로 단순화(짧고 관리 쉬움)
-    function drawHamsterBaby(offsetX=0, offsetY=0, shake=0){
-      // 바디
-      rect(10+offsetX+shake, 18+offsetY, 16, 16, C.fur, C.outline);
-      rect(12+offsetX+shake, 22+offsetY, 12, 10, C.belly, null);
+    const LS_KEY = "hamster_damagochi_v1";
 
-      // 귀
-      rect(9+offsetX+shake, 16+offsetY, 5, 5, C.fur, C.outline);
-      rect(23+offsetX+shake, 16+offsetY, 5, 5, C.fur, C.outline);
-      rect(10+offsetX+shake, 17+offsetY, 3, 3, C.ear, null);
-      rect(24+offsetX+shake, 17+offsetY, 3, 3, C.ear, null);
+    // ✅ mood(자동 sad) 기능 ON/OFF 스위치
+    const ENABLE_MOOD = false;
 
-      // 볼
-      rect(12+offsetX+shake, 27+offsetY, 2, 2, C.blush, null);
-      rect(22+offsetX+shake, 27+offsetY, 2, 2, C.blush, null);
+    const game = document.getElementById("game");
+    const ham = document.getElementById("ham");
+    const expFill = document.getElementById("expFill");
+    const lvlText = document.getElementById("lvlText");
+    const dbg = document.getElementById("dbg");
 
-      // 눈
-      dot(15+offsetX+shake, 24+offsetY, C.eye);
-      dot(21+offsetX+shake, 24+offsetY, C.eye);
-      dot(15+offsetX+shake, 23+offsetY, C.shine);
-      dot(21+offsetX+shake, 23+offsetY, C.shine);
+    const btnLeft = document.getElementById("btnLeft"); // 기능 없음(확장용)
+    const btnFeed = document.getElementById("btnFeed"); // ■
+    const btnPet  = document.getElementById("btnPet");  // ▶
 
-      // 코
-      dot(18+offsetX+shake, 26+offsetY, C.outline);
+    let level = 1;
+    let exp = 0;         // 0~99 (100 되면 레벨업)
+    let state = "normal";
+    let busy = false;
 
-      // 발
-      rect(12+offsetX+shake, 34+offsetY, 5, 3, C.fur2, C.outline);
-      rect(19+offsetX+shake, 34+offsetY, 5, 3, C.fur2, C.outline);
+    // 옵션: 시간이 지나면 우울(나중 확장용)
+    let mood = 80;       // 0~100
 
-      // 꼬리
-      rect(26+offsetX+shake, 28+offsetY, 3, 3, C.fur2, C.outline);
+    function load(){
+      try{
+        const raw = localStorage.getItem(LS_KEY);
+        if(!raw) return;
+        const data = JSON.parse(raw);
+        if(typeof data.level === "number") level = clampInt(data.level, 1, 999);
+        if(typeof data.exp === "number")   exp   = clampInt(data.exp, 0, 99);
+        if(typeof data.mood === "number")  mood  = clampInt(data.mood, 0, 100);
+      }catch(e){}
     }
 
-    function drawHamsterEvolved(offsetX=0, offsetY=0, shake=0){
-      // 조금 더 큰 바디 + 왕관 + 오라
-      // 오라(뒤)
-      rect(8+offsetX+shake, 16+offsetY, 20, 20, "rgba(124,199,255,.20)", null);
-
-      // 바디
-      rect(9+offsetX+shake, 18+offsetY, 18, 18, C.fur, C.outline);
-      rect(12+offsetX+shake, 23+offsetY, 12, 11, C.belly, null);
-
-      // 귀
-      rect(8+offsetX+shake, 15+offsetY, 6, 6, C.fur, C.outline);
-      rect(23+offsetX+shake, 15+offsetY, 6, 6, C.fur, C.outline);
-      rect(9+offsetX+shake, 16+offsetY, 4, 4, C.ear, null);
-      rect(24+offsetX+shake, 16+offsetY, 4, 4, C.ear, null);
-
-      // 왕관
-      rect(14+offsetX+shake, 12+offsetY, 8, 4, C.crown, C.outline);
-      dot(15+offsetX+shake, 11+offsetY, C.crown);
-      dot(18+offsetX+shake, 10+offsetY, C.crown);
-      dot(21+offsetX+shake, 11+offsetY, C.crown);
-
-      // 눈(더 반짝)
-      dot(15+offsetX+shake, 25+offsetY, C.eye);
-      dot(21+offsetX+shake, 25+offsetY, C.eye);
-      dot(14+offsetX+shake, 24+offsetY, C.shine);
-      dot(20+offsetX+shake, 24+offsetY, C.shine);
-
-      // 코
-      dot(18+offsetX+shake, 27+offsetY, C.outline);
-
-      // 발
-      rect(12+offsetX+shake, 36+offsetY, 6, 3, C.fur2, C.outline);
-      rect(19+offsetX+shake, 36+offsetY, 6, 3, C.fur2, C.outline);
-
-      // 잎사귀 장식
-      rect(26+offsetX+shake, 28+offsetY, 3, 5, C.leaf, C.outline);
-      dot(27+offsetX+shake, 27+offsetY, C.leaf);
+    function save(){
+      const data = { level, exp, mood };
+      localStorage.setItem(LS_KEY, JSON.stringify(data));
     }
 
-    // =========================
-    // 3) 도형 유틸 (grid 좌표 기반)
-    // =========================
-    function clear(){
-      ctx.clearRect(0,0,cv.width,cv.height);
-      // 배경 점무늬(레트로)
-      for(let y=0; y<cv.height; y+=8){
-        for(let x=0; x<cv.width; x+=8){
-          ctx.fillStyle = ( (x+y) % 16 === 0) ? "rgba(255,255,255,.04)" : "rgba(0,0,0,0)";
-          ctx.fillRect(x,y,2,2);
-        }
-      }
+    function clampInt(n, min, max){
+      n = Math.floor(Number(n) || 0);
+      if(n < min) return min;
+      if(n > max) return max;
+      return n;
     }
 
-    function rect(gx, gy, gw, gh, fillColor, strokeColor){
-      const x = gx*PX, y = gy*PX, w = gw*PX, h = gh*PX;
-      if(fillColor){
-        ctx.fillStyle = fillColor;
-        ctx.fillRect(x,y,w,h);
-      }
-      if(strokeColor){
-        ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = PX; // 굵게
-        ctx.strokeRect(x+PX/2, y+PX/2, w-PX, h-PX);
-      }
+    function setState(next){
+      state = next;
+      ham.src = IMG[next] || IMG.normal;
+
+      // ✅ normal일 때만 둥실둥실
+      if(next === "normal") ham.classList.add("bounce");
+      else ham.classList.remove("bounce");
     }
 
-    function dot(gx, gy, color){
-      const x = gx*PX, y = gy*PX;
-      ctx.fillStyle = color;
-      ctx.fillRect(x,y,PX,PX);
-    }
-
-    // =========================
-    // 4) EXP / UI 업데이트
-    // =========================
     function updateUI(){
-      expText.textContent = String(exp);
-      fill.style.width = `${Math.min(100, exp)}%`;
-      lvEl.textContent = String(lv);
-      stateEl.textContent = evolved ? "evolved" : "baby";
+      // EXP는 0~99, 바는 0~100%로 표시
+      const pct = Math.min(100, Math.max(0, (exp / 100) * 100));
+      expFill.style.width = pct + "%";
+      lvlText.textContent = String(level);
+
+      // dbg.textContent = `state=${state} exp=${exp} lvl=${level} mood=${mood}`;
     }
 
     function addExp(amount){
-      if(evolving) return;
-      exp = Math.min(100, exp + amount);
+      amount = clampInt(amount, 0, 1000);
+      let total = exp + amount;
+
+      let leveledUp = false;
+      while(total >= 100){
+        total -= 100;
+        level += 1;
+        leveledUp = true;
+      }
+
+      exp = total;
+
+      if(leveledUp) levelUpFlash();  // ✅ 한 번만 연출
+
+      save();
       updateUI();
-      if(exp >= 100 && !evolved){
-        evolve();
-      }
+    }
+    let flashTimer = null;
+    function levelUpFlash(){
+      // busy 중이어도 레벨업 표시는 짧게만
+      clearTimeout(flashTimer);
+      const prev = state;
+      setState("happy");
+      flashTimer = setTimeout(()=>{
+        // 액션 중이면 상태를 건드리지 않음(액션이 끝나면 normal로 돌아감)
+        if(!busy) setState("normal");
+        else setState(prev);
+      }, 700);
     }
 
-    function resetAll(){
-      exp = 0;
-      lv = 1;
-      evolved = false;
-      evolving = false;
-      particles = [];
-      updateUI();
-    }
+    async function doAction(kind){
+      if(busy) return;
+      busy = true;
 
-    // =========================
-    // 5) 진화 애니메이션
-    // =========================
-    function spawnParticles(n=28){
-      const cx = cv.width/2, cy = cv.height/2;
-      for(let i=0;i<n;i++){
-        const a = Math.random()*Math.PI*2;
-        const s = 0.7 + Math.random()*2.2;
-        particles.push({
-          x: cx, y: cy,
-          vx: Math.cos(a)*s,
-          vy: Math.sin(a)*s,
-          life: 28 + Math.random()*18
-        });
-      }
-    }
-
-    async function evolve(){
-      evolving = true;
-      screen.classList.add("on");
-      spawnParticles(36);
-
-      // 플래시/흔들림 1.2초
-      const start = performance.now();
-      const dur = 1200;
-
-      await new Promise((resolve)=>{
-        function tick(now){
-          const t = Math.min(1, (now-start)/dur);
-          // 플래시 깜빡임
-          if(Math.floor(t*12)%2===0) screen.classList.add("on");
-          else screen.classList.remove("on");
-
-          // 마지막에 진화 확정
-          if(t>=1){
-            resolve();
-            return;
-          }
-          requestAnimationFrame(tick);
-        }
-        requestAnimationFrame(tick);
-      });
-
-      screen.classList.remove("on");
-      evolved = true;
-      lv += 1;
-      exp = 0; // 진화 후 exp 초기화(원하면 carry 가능)
-      updateUI();
-
-      // 짧은 후광 파티클 추가
-      spawnParticles(18);
-      evolving = false;
-    }
-
-    // =========================
-    // 6) 렌더 루프
-    // =========================
-    function render(){
-      clear();
-
-// ✅ 스프라이트 크기(그리드 단위) 기반 자동 중앙정렬
-const spr = evolved
-  ? { w: 34, h: 32 }   // evolved 대략 바운딩
-  : { w: 32, h: 30 };  // baby 대략 바운딩
-
-const baseX = Math.floor((cv.width / PX - spr.w) / 2);
-const baseY = Math.floor((cv.height / PX - spr.h) / 2);
-
-
-      // 흔들림(진화 중에만)
-      let shake = 0;
-      if(evolving){
-        shake = (Math.random() < 0.5 ? -1 : 1) * (Math.random() < 0.7 ? 1 : 2);
+      if(kind === "feed"){
+        // ■ 밥 주기: +10, 2초 eat
+        addExp(10);
+        mood = clampInt(mood + 6, 0, 100);
+        setState("eat");
+        save(); updateUI();
+        await wait(2000);
+        setState("normal");
       }
 
-      // 캐릭터
-      if(evolved) drawHamsterEvolved(baseX, baseY, shake);
-      else drawHamsterBaby(baseX, baseY, shake);
-
-      // 파티클
-      for(const p of particles){
-        ctx.fillStyle = "rgba(124,255,178,.85)";
-        ctx.fillRect(p.x, p.y, 2, 2);
-        ctx.fillStyle = "rgba(124,199,255,.75)";
-        ctx.fillRect(p.x+2, p.y+2, 2, 2);
+      if(kind === "pet"){
+        // ▶ 쓰다듬기: +5, 2초 happy
+        addExp(5);
+        mood = clampInt(mood + 10, 0, 100);
+        setState("happy");
+        save(); updateUI();
+        await wait(2000);
+        setState("normal");
       }
 
-      // 파티클 업데이트
-      particles = particles
-        .map(p=>({
-          ...p,
-          x: p.x + p.vx*2,
-          y: p.y + p.vy*2,
-          vx: p.vx*0.98,
-          vy: p.vy*0.98,
-          life: p.life - 1
-        }))
-        .filter(p=>p.life>0);
-
-      requestAnimationFrame(render);
+      busy = false;
     }
 
-    // =========================
-    // 7) 이벤트 바인딩
-    // =========================
-    $("#btnAdd").addEventListener("click", ()=>addExp(10));
-    $("#btnSmall").addEventListener("click", ()=>addExp(3));
-    $("#btnReset").addEventListener("click", resetAll);
+    function wait(ms){ return new Promise(r=>setTimeout(r, ms)); }
 
-    // 초기화
+    // ✅ 반응형 스케일: 노션 임베드/모바일에서 잘리지 않게
+    function applyScale(){
+      const fw = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--frame-w")) || 673;
+      const pad = 24; // body padding 고려
+      const maxW = Math.max(320, window.innerWidth - pad);
+      const s = Math.min(1, maxW / fw);
+      game.style.setProperty("--scale", String(s));
+    }
+    window.addEventListener("resize", applyScale);
+
+    // 버튼 이벤트
+    btnLeft.addEventListener("click", ()=>{ /* 기능 없음(확장용) */ });
+
+    btnFeed.addEventListener("click", ()=>doAction("feed"));
+    btnPet.addEventListener("click",  ()=>doAction("pet"));
+
+    // ✅ D키로 hitbox 시각화 토글
+    window.addEventListener("keydown", (e) => {
+      if (e.key.toLowerCase() === "d") document.body.classList.toggle("debug-hit");
+    });
+
+      if (ENABLE_MOOD) {
+        setInterval(()=>{
+          if(busy) return;
+          mood = clampInt(mood - 2, 0, 100);
+          if(mood <= 25) setState("sad");
+          else if(state === "sad") setState("normal");
+          save();
+          updateUI();
+        }, 15000);
+      }
+
+    // init
+    load();
+    applyScale();
+    setState("normal");
     updateUI();
-    render();
   </script>
 </body>
 </html>
