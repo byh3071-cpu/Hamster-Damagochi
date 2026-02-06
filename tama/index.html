@@ -16,10 +16,10 @@
       --frame-h: 673px;
 
       /* === 상단 화면 위치 안정화 === */
-      --screen-top-x: 138px;
-      --screen-top-y: 100px;  /* 112px로 수정되어 검은 여백 제거됨 */
-      --screen-top-w: 396px;
-      --screen-top-h: 290px; 
+      --screen-top-x: 142px;
+      --screen-top-y: 100px;  /* 위쪽 여백 최소화 */
+      --screen-top-w: 390px;
+      --screen-top-h: 280px; 
 
       /* === 하단 패널 위치 === */
       --panel-x: 142px;
@@ -97,9 +97,33 @@
       width: 100%;
       height: 100%; 
       object-fit: cover;
-      object-position: center bottom; 
+      object-position: 30% bottom; /* 왼쪽 쳇바퀴가 보이도록 */
       image-rendering: pixelated;
       display: block;
+    }
+
+    /* 집 클릭 영역 */
+    .house-click-area {
+      position: absolute;
+      right: 15px;
+      top: 100px;
+      width: 120px;
+      height: 100px;
+      z-index: 15;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    /* 그릇 클릭 영역 */
+    .bowl-click-area {
+      position: absolute;
+      right: 75px;
+      bottom: 90px;
+      width: 60px;
+      height: 49px;
+      z-index: 25; /* 햄스터(z-index: 20)보다 높게 설정 */
+      cursor: pointer;
+      background: transparent;
     }
 
     /* 햄스터 위치 조정 */
@@ -159,7 +183,7 @@
       align-items: baseline;
       justify-content: space-between;
       width: 100px; 
-      margin-bottom: 2px;
+      margin-bottom: 1px;
     }
 
     .stat-row span:first-child {
@@ -176,13 +200,13 @@
 
     .val-level { 
       font-size: 16px; 
-      color: #d32f2f; 
+      color: #ffffff; 
       text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
     }
 
     .exp-track {
       width: 120px;
-      height: 14px;
+      height: 12px;
       background: var(--exp-bar-bg);
       border: 2px solid var(--color-text);
       border-radius: 4px;
@@ -194,6 +218,98 @@
       width: 0%;
       background-color: var(--exp-bar-fill);
       transition: width 0.3s;
+    }
+
+    /* 일일 목표 진행률 */
+    .goal-row {
+      margin-top: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 8px;
+      color: var(--color-text);
+      line-height: 1.1;
+    }
+
+    .goal-label {
+      font-weight: bold;
+      font-size: 10px;
+      transform: translate(-3px, -1px);
+    }
+
+    .goal-progress {
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 8px;
+    }
+
+    .goal-percent {
+      color: #ffffff;
+      font-size: 8px;
+      margin-left: 4px;
+      font-weight: bold;
+    }
+
+    /* 레벨별 칭호 */
+    .title-row {
+      margin-top: 4px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hamster-title {
+      font-size: 12px;
+      color: #ffffff;
+      font-weight: bold;
+      text-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7px 10px;
+      background: rgba(15, 56, 15, 0.5);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      border-radius: 6px;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2);
+      letter-spacing: 0.5px;
+      line-height: 1.4;
+      width: calc(100% - 16px);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    /* EXP 파티클 효과 */
+    .exp-particle {
+      position: absolute;
+      color: #8bac0f;
+      font-size: 22px;
+      font-weight: bold;
+      pointer-events: none;
+      z-index: 300;
+      text-shadow: 2px 2px 0px rgba(0,0,0,0.8), 0 0 8px rgba(139,172,15,0.6);
+      animation: expFloat 1.5s ease-out forwards;
+    }
+
+    @keyframes expFloat {
+      0% {
+        opacity: 1;
+        transform: translateY(0) translateX(0) scale(0.8);
+      }
+      25% {
+        transform: translateY(-20px) translateX(-3px) scale(1.0);
+      }
+      50% {
+        opacity: 1;
+        transform: translateY(-40px) translateX(3px) scale(1.2);
+      }
+      75% {
+        transform: translateY(-60px) translateX(-2px) scale(1.0);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-80px) translateX(0) scale(0.8);
+      }
     }
 
     /* 오른쪽 패널 (로그) */
@@ -212,9 +328,10 @@
       font-size: 8px;
       margin-top: 5px;
       margin-bottom: 10px;
-      opacity: 0.6;
+      opacity: 1;
       text-transform: uppercase;
       letter-spacing: 1px;
+      color: #0f380f;
     }
 
     .log-content {
@@ -235,7 +352,9 @@
     .log-content::-webkit-scrollbar { display: none; }
     
     .log-item { margin-bottom: 3px; }
-    .log-item.new { color: #d32f2f; font-weight: bold; animation: flash 0.5s; }
+    .log-item.new { color: #0f380f; font-weight: bold; animation: flash 0.5s; } /* 일반 로그 */
+    .log-item.level-up { color: #ffcc00; font-weight: bold; animation: flash 0.5s; } /* 레벨 업 - 밝은 골드 */
+    .log-item.important { color: #2d3d1f; font-weight: bold; animation: flash 0.5s; } /* 중요 메시지 */
     @keyframes flash { 0% { opacity: 0; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
     /* 버튼 영역 */
@@ -257,6 +376,213 @@
       0%, 100% { transform: translate(-50%, -50%) translateY(0); } 
       50% { transform: translate(-50%, -50%) translateY(-6px); } 
     }
+
+    /* 잠자는 모습 (오른쪽 집 안) */
+    .hamster.sleeping {
+      left: 89% !important; /* 살짝 오른쪽으로 */
+      top: 65% !important; /* 살짝 위로 */
+      width: 120px !important; /* 크기 살짝 줄이기 */
+      height: 120px !important;
+      transform: translate(-50%, -50%);
+      animation: sleepBreath 2s infinite ease-in-out;
+    }
+
+    @keyframes sleepBreath {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.05); }
+    }
+
+    /* 레벨업 효과 (부드러운 버전) */
+    .levelup-flash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(255, 204, 0, 0.2) 0%, transparent 70%);
+      z-index: 500;
+      pointer-events: none;
+      animation: levelupFlash 0.6s ease-out;
+    }
+
+    @keyframes levelupFlash {
+      0% { opacity: 0; transform: scale(0.8); }
+      50% { opacity: 0.3; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.1); }
+    }
+
+    .hamster.levelup {
+      animation: hamsterLevelup 0.8s ease-out;
+      filter: drop-shadow(0 0 8px rgba(255, 204, 0, 0.6));
+    }
+
+    @keyframes hamsterLevelup {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      30% { transform: translate(-50%, -50%) scale(1.1) rotate(-3deg); }
+      60% { transform: translate(-50%, -50%) scale(1.15) rotate(3deg); }
+    }
+
+    .star-particle {
+      position: absolute;
+      color: #ffcc00;
+      font-size: 20px;
+      pointer-events: none;
+      z-index: 600;
+      opacity: 0.8;
+      animation: starFloat 1.2s ease-out forwards;
+    }
+
+    @keyframes starFloat {
+      0% {
+        opacity: 0.8;
+        transform: translate(0, 0) scale(0.6) rotate(0deg);
+      }
+      50% {
+        opacity: 0.9;
+        transform: translate(var(--star-x), var(--star-y)) scale(1.2) rotate(180deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(calc(var(--star-x) * 1.3), calc(var(--star-y) * 1.3)) scale(0.6) rotate(360deg);
+      }
+    }
+
+    /* 통계 모달 */
+    .stats-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .stats-modal.show {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .stats-panel {
+      background-color: var(--color-ui-bg);
+      border: 3px solid var(--color-text);
+      border-radius: 10px;
+      padding: 20px;
+      width: 90%;
+      max-width: 400px;
+      max-height: 80vh;
+      overflow-y: auto;
+      color: var(--color-text);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .stats-panel::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .stats-panel::-webkit-scrollbar-track {
+      background: var(--exp-bar-bg);
+      border-radius: 4px;
+    }
+
+    .stats-panel::-webkit-scrollbar-thumb {
+      background: var(--color-text);
+      border-radius: 4px;
+    }
+
+    .stats-title {
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 20px;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .stats-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px dashed rgba(15, 56, 15, 0.3);
+      font-size: 12px;
+    }
+
+    .stats-item:last-child {
+      border-bottom: none;
+    }
+
+    .stats-section {
+      margin-bottom: 20px;
+    }
+
+    .stats-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .stats-section-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #8bac0f;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid rgba(15, 56, 15, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+
+    .stats-label {
+      color: var(--color-text);
+      font-weight: bold;
+    }
+
+    .stats-value {
+      color: #ffffff;
+      font-weight: bold;
+    }
+
+    .stats-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 30px;
+      height: 30px;
+      background: var(--color-text);
+      color: var(--color-ui-bg);
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    .stats-close:hover {
+      background: #ffffff;
+    }
   </style>
 </head>
 <body>
@@ -268,10 +594,16 @@
     <div class="screen-top">
       <img src="./assets/bg.png" class="bg-image" alt="배경">
       <img src="./assets/normal.png" class="hamster bounce" id="hamster" alt="햄스터">
+      
+      <!-- 집 클릭 영역 -->
+      <div class="house-click-area" onclick="handleHouseClick()" title="클릭: 잠자기"></div>
+      
+      <!-- 그릇 클릭 영역 -->
+      <div class="bowl-click-area" onclick="handleBowlClick()" title="클릭: 먹이주기"></div>
     </div>
 
     <div class="screen-bottom">
-      <div class="panel-left">
+      <div class="panel-left" ondblclick="showStats()" style="cursor: pointer;" title="더블클릭: 통계">
         <div class="stat-row">
           <span>LV.</span>
           <span class="val-level" id="uiLevel">1</span>
@@ -284,6 +616,18 @@
 
         <div class="exp-track">
           <div class="exp-fill" id="uiExp"></div>
+        </div>
+
+        <div class="goal-row">
+          <span class="goal-label">목표</span>
+          <span>
+            <span class="goal-progress" id="goalProgress">0/5</span>
+            <span class="goal-percent" id="goalPercent">0%</span>
+          </span>
+        </div>
+
+        <div class="title-row" id="titleRow">
+          <span class="hamster-title" id="hamsterTitle">새내기 햄스터</span>
         </div>
       </div>
       <div class="panel-right">
@@ -301,7 +645,18 @@
 
     <div class="btn-area btn-a" onclick="handleBtn('A')" title="밥주기"></div>
     <div class="btn-area btn-b" onclick="handleBtn('B')" title="쓰다듬기"></div>
-    <div class="btn-area btn-c" onclick="handleBtn('C')" title="놀아주기"></div>
+    <div class="btn-area btn-c" onclick="handleBtn('C')" title="잠자기"></div>
+
+    <!-- 통계 모달 -->
+    <div class="stats-modal" id="statsModal">
+      <div class="stats-panel">
+        <button class="stats-close" onclick="closeStats()">×</button>
+        <div class="stats-title">📊 STATISTICS</div>
+        <div id="statsContent">
+          <!-- 통계 내용이 여기에 동적으로 추가됨 -->
+        </div>
+      </div>
+    </div>
 
   </div>
   </div>
@@ -317,7 +672,190 @@
     /* [수정] 시작 레벨 1, 경험치 0으로 초기화 */
     let game = { level: 1, exp: 0, maxExp: 100, isBusy: false };
 
+    /* 통계 데이터 */
+    let stats = {
+      totalActions: 0,
+      totalExp: 0,
+      playDays: new Set(),
+      firstPlayDate: null,
+      lastActionDate: null,
+      consecutiveDays: 0
+    };
+
+    /* 일일 목표 데이터 */
+    let dailyGoal = {
+      date: null,
+      target: 5, // 기본 목표: 5개
+      completed: 0,
+      achieved: false // 오늘 목표 달성 여부
+    };
+
+
+    /* 통계 초기화 */
+    function initStats() {
+      const saved = localStorage.getItem('hamsterStats');
+      if(saved) {
+        const parsed = JSON.parse(saved);
+        stats = {
+          totalActions: parsed.totalActions || 0,
+          totalExp: parsed.totalExp || 0,
+          playDays: new Set(parsed.playDays || []),
+          firstPlayDate: parsed.firstPlayDate || null,
+          lastActionDate: parsed.lastActionDate || null,
+          consecutiveDays: parsed.consecutiveDays || 0
+        };
+      }
+      
+      const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
+      if(!stats.firstPlayDate) {
+        stats.firstPlayDate = today;
+      }
+      stats.playDays.add(today);
+      saveStats();
+    }
+
+    /* 일일 목표 초기화 */
+    function initDailyGoal() {
+      const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
+      const saved = localStorage.getItem('hamsterDailyGoal');
+      
+      if(saved) {
+        const parsed = JSON.parse(saved);
+        if(parsed.date === today) {
+          // 같은 날이면 복원
+          dailyGoal = {
+            date: parsed.date,
+            target: parsed.target || 5,
+            completed: parsed.completed || 0,
+            achieved: parsed.achieved || false
+          };
+        } else {
+          // 새 날이면 리셋
+          dailyGoal = {
+            date: today,
+            target: parsed.target || 5, // 목표는 유지
+            completed: 0,
+            achieved: false
+          };
+          saveDailyGoal();
+        }
+      } else {
+        dailyGoal = {
+          date: today,
+          target: 5,
+          completed: 0,
+          achieved: false
+        };
+        saveDailyGoal();
+      }
+      
+      updateGoalUI();
+    }
+
+    /* 일일 목표 저장 */
+    function saveDailyGoal() {
+      localStorage.setItem('hamsterDailyGoal', JSON.stringify(dailyGoal));
+    }
+
+    /* 목표 UI 업데이트 */
+    function updateGoalUI() {
+      const goalProgress = document.getElementById('goalProgress');
+      const goalPercent = document.getElementById('goalPercent');
+      
+      if(goalProgress && goalPercent) {
+        const percent = dailyGoal.target > 0 
+          ? Math.min(Math.floor((dailyGoal.completed / dailyGoal.target) * 100), 100)
+          : 0;
+        
+        // 더 간결한 표시: "3/5 60%"
+        goalProgress.textContent = `${dailyGoal.completed}/${dailyGoal.target}`;
+        goalPercent.textContent = `${percent}%`;
+        
+        // 목표 달성 시 색상 변경
+        if(dailyGoal.achieved || dailyGoal.completed >= dailyGoal.target) {
+          goalProgress.style.color = '#ffcc00';
+          goalPercent.style.color = '#ffcc00';
+        } else {
+          goalProgress.style.color = '#ffffff';
+          goalPercent.style.color = '#ffffff';
+        }
+      }
+    }
+
+    /* 통계 저장 */
+    function saveStats() {
+      localStorage.setItem('hamsterStats', JSON.stringify({
+        ...stats,
+        playDays: Array.from(stats.playDays)
+      }));
+    }
+
+    /* 통계 업데이트 (액션 시) */
+    function updateStats(expGained) {
+      const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
+      
+      stats.totalActions++;
+      stats.totalExp += expGained;
+      stats.playDays.add(today);
+      
+      // 연속 플레이 일수 계산
+      if(stats.lastActionDate) {
+        const lastDate = new Date(stats.lastActionDate);
+        const todayDate = new Date(today);
+        const diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+        
+        if(diffDays === 1) {
+          stats.consecutiveDays++;
+        } else if(diffDays > 1) {
+          stats.consecutiveDays = 1;
+        }
+      } else {
+        stats.consecutiveDays = 1;
+      }
+      
+      stats.lastActionDate = today;
+      saveStats();
+
+      // 일일 목표 업데이트 (EXP가 0보다 큰 경우만 카운트)
+      if(expGained > 0) {
+        // 날짜가 바뀌면 리셋
+        if(dailyGoal.date !== today) {
+          dailyGoal = {
+            date: today,
+            target: dailyGoal.target, // 목표는 유지
+            completed: 0,
+            achieved: false
+          };
+        }
+        
+        dailyGoal.completed++;
+        saveDailyGoal();
+        
+        // 목표 달성 체크 (한 번만 실행되도록)
+        if(!dailyGoal.achieved && dailyGoal.completed >= dailyGoal.target) {
+          dailyGoal.achieved = true;
+          saveDailyGoal();
+          showGoalAchievedEffect();
+          const bonusExp = Math.floor(expGained * 0.5);
+          log(`🎯 목표 달성! 보너스 +${bonusExp} EXP`);
+          // 보너스 EXP 추가 (updateStats를 호출하지 않도록 직접 추가)
+          game.exp += bonusExp;
+          if(game.exp >= game.maxExp) {
+            game.level++;
+            game.exp -= game.maxExp;
+            logLevelUp(`⭐ LEVEL UP! LV.${game.level} ⭐`);
+            showLevelUpEffect();
+          }
+          updateUI();
+        }
+        
+        updateGoalUI();
+      }
+    }
+
     function init() {
+      initStats();
+      initDailyGoal();
       updateUI();
       fitScale();
       window.addEventListener('resize', fitScale);
@@ -344,25 +882,47 @@
 
       // [주의] 폴더에 eat.png, happy.png 파일이 꼭 있어야 합니다.
       if(btn === 'A') {
-        log("냠냠! 해바라기씨 맛있다 +10");
-        changeAction('./assets/eat.png', 2000);
-        addExp(10);
+        // A 버튼은 그릇 클릭으로 대체됨 (비활성화)
+        log("그릇을 클릭해주세요!");
+        game.isBusy = false;
       } else if(btn === 'B') {
         log("쓰담쓰담.. 기분 최고! +5");
         changeAction('./assets/happy.png', 2000);
+        showExpParticle(5);
         addExp(5);
+        updateStats(5);
       } else if(btn === 'C') {
-        log("쳇바퀴 돌리기! 영차영차 +15");
-        changeAction('./assets/happy.png', 2000); 
-        addExp(15);
+        // C 버튼은 다른 기능으로 사용 가능
+        log("버튼 C");
+        game.isBusy = false; // 버튼이 작동하지 않는 문제 해결
       }
+    }
+
+    /* 집 클릭 핸들러 */
+    function handleHouseClick() {
+      if(game.isBusy) return;
+      game.isBusy = true;
+      log("집에 들어가서 잠자기... Zzz +0");
+      changeSleepAction(5000); 
+      addExp(0);
+    }
+
+    /* 그릇 클릭 핸들러 (A 버튼 기능) */
+    function handleBowlClick() {
+      if(game.isBusy) return;
+      game.isBusy = true;
+      log("냠냠! 해바라기씨 맛있다 +10");
+      changeAction('./assets/eat.png', 2000);
+      showExpParticle(10);
+      addExp(10);
+      updateStats(10);
     }
 
     /* 이미지 사라짐 방지 */
     function changeAction(imgSrc, duration) {
       const originalSrc = './assets/normal.png';
       hamster.src = imgSrc;
-      hamster.classList.remove('bounce');
+      hamster.classList.remove('bounce', 'sleeping');
       
       // 이미지 로드 실패 시 원상복구
       hamster.onerror = function() {
@@ -370,12 +930,40 @@
         log("⚠ 오류: 이미지가 없어요!");
         hamster.src = originalSrc;
         hamster.classList.add('bounce');
+        hamster.classList.remove('sleeping');
         game.isBusy = false;
       };
 
       setTimeout(() => {
         hamster.src = originalSrc;
         hamster.classList.add('bounce');
+        hamster.classList.remove('sleeping');
+        game.isBusy = false;
+        hamster.onerror = null; 
+      }, duration);
+    }
+
+    /* 잠자는 모습 (오른쪽 집 안) */
+    function changeSleepAction(duration) {
+      const originalSrc = './assets/normal.png';
+      hamster.src = './assets/sleep.png';
+      hamster.classList.remove('bounce');
+      hamster.classList.add('sleeping');
+      
+      // 이미지 로드 실패 시 원상복구
+      hamster.onerror = function() {
+        console.warn("이미지 로드 실패: sleep.png");
+        log("⚠ 오류: 잠자는 이미지가 없어요!");
+        hamster.src = originalSrc;
+        hamster.classList.add('bounce');
+        hamster.classList.remove('sleeping');
+        game.isBusy = false;
+      };
+
+      setTimeout(() => {
+        hamster.src = originalSrc;
+        hamster.classList.add('bounce');
+        hamster.classList.remove('sleeping');
         game.isBusy = false;
         hamster.onerror = null; 
       }, duration);
@@ -386,9 +974,244 @@
       if(game.exp >= game.maxExp) {
         game.level++;
         game.exp -= game.maxExp;
-        log(`🔥 레벨 업! LV.${game.level}🔥`);
+        logLevelUp(`⭐ LEVEL UP! LV.${game.level} ⭐`);
+        showLevelUpEffect();
       }
       updateUI();
+    }
+
+    /* EXP 파티클 효과 */
+    function showExpParticle(amount) {
+      // 햄스터 머리 위 위치 계산 (액션과 직접 연결)
+      const hamsterRect = hamster.getBoundingClientRect();
+      const centerX = hamsterRect.left + hamsterRect.width / 2;
+      const headY = hamsterRect.top + 50; // 햄스터 머리 더 아래쪽
+      
+      const particle = document.createElement('div');
+      particle.className = 'exp-particle';
+      particle.textContent = `+${amount}`;
+      particle.style.left = centerX + 'px';
+      particle.style.top = headY + 'px';
+      particle.style.transform = 'translate(-50%, 0)';
+      
+      document.body.appendChild(particle);
+      setTimeout(() => particle.remove(), 1500);
+    }
+
+    /* 레벨업 화려한 효과 (부드러운 버전) */
+    function showLevelUpEffect() {
+      // 화면 플래시 효과 (부드럽게)
+      const flash = document.createElement('div');
+      flash.className = 'levelup-flash';
+      document.body.appendChild(flash);
+      setTimeout(() => flash.remove(), 600);
+
+      // 햄스터 반짝임 효과 (부드럽게)
+      hamster.classList.add('levelup');
+      setTimeout(() => {
+        hamster.classList.remove('levelup');
+      }, 800);
+
+      // 별 파티클 효과 (개수 줄이고 부드럽게)
+      const hamsterRect = hamster.getBoundingClientRect();
+      const centerX = hamsterRect.left + hamsterRect.width / 2;
+      const centerY = hamsterRect.top + hamsterRect.height / 2;
+      
+      const starCount = 8; // 12개에서 8개로 줄임
+      for(let i = 0; i < starCount; i++) {
+        const angle = (360 / starCount) * i;
+        const distance = 60 + Math.random() * 30; // 거리 줄임
+        const radian = (angle * Math.PI) / 180;
+        const x = Math.cos(radian) * distance;
+        const y = Math.sin(radian) * distance;
+        
+        const star = document.createElement('div');
+        star.className = 'star-particle';
+        star.textContent = '⭐';
+        star.style.left = centerX + 'px';
+        star.style.top = centerY + 'px';
+        star.style.setProperty('--star-x', x + 'px');
+        star.style.setProperty('--star-y', y + 'px');
+        
+        document.body.appendChild(star);
+        setTimeout(() => star.remove(), 1200);
+      }
+    }
+
+    /* 통계 모달 관련 */
+
+    function showStats() {
+      const modal = document.getElementById('statsModal');
+      const content = document.getElementById('statsContent');
+      
+      const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
+      const playDaysCount = stats.playDays.size;
+      const avgDailyExp = playDaysCount > 0 ? Math.floor(stats.totalExp / playDaysCount) : 0;
+      const goalPercent = dailyGoal.target > 0 
+        ? Math.min(Math.floor((dailyGoal.completed / dailyGoal.target) * 100), 100)
+        : 0;
+      
+      content.innerHTML = `
+        <div class="stats-section">
+          <div class="stats-section-title">📊 통계</div>
+          <div class="stats-item">
+            <span class="stats-label">총 플레이 일수</span>
+            <span class="stats-value">${playDaysCount}일</span>
+          </div>
+          <div class="stats-item">
+            <span class="stats-label">총 액션 횟수</span>
+            <span class="stats-value">${stats.totalActions}회</span>
+          </div>
+          <div class="stats-item">
+            <span class="stats-label">총 획득 EXP</span>
+            <span class="stats-value">${stats.totalExp}점</span>
+          </div>
+          <div class="stats-item">
+            <span class="stats-label">평균 일일 EXP</span>
+            <span class="stats-value">${avgDailyExp}점</span>
+          </div>
+          <div class="stats-item">
+            <span class="stats-label">현재 레벨</span>
+            <span class="stats-value">LV.${game.level}</span>
+          </div>
+          <div class="stats-item">
+            <span class="stats-label">연속 플레이</span>
+            <span class="stats-value">${stats.consecutiveDays}일</span>
+          </div>
+          <div class="stats-item">
+            <span class="stats-label">첫 플레이</span>
+            <span class="stats-value">${stats.firstPlayDate || '오늘'}</span>
+          </div>
+        </div>
+        
+        <div class="stats-section">
+          <div class="stats-section-title">🎯 일일 목표</div>
+          <div class="stats-item">
+            <span class="stats-label">오늘 완료</span>
+            <span class="stats-value">${dailyGoal.completed}/${dailyGoal.target} (${goalPercent}%)</span>
+          </div>
+          <div class="stats-item">
+            <span class="stats-label">목표 설정</span>
+            <span class="stats-value">
+              <input type="number" id="goalInput" min="1" max="50" value="${dailyGoal.target}" 
+                     style="width: 50px; padding: 4px; font-size: 11px; text-align: center; 
+                            background: rgba(15,56,15,0.8); border: 2px solid #0f380f; 
+                            color: #ffffff; border-radius: 4px;">
+              <button onclick="saveGoal()" style="margin-left: 8px; padding: 4px 8px; 
+                      font-size: 10px; background: #0f380f; color: #9bbc0f; 
+                      border: 2px solid #0f380f; border-radius: 4px; cursor: pointer;">저장</button>
+            </span>
+          </div>
+          ${dailyGoal.achieved ? '<div class="stats-item" style="color: #ffcc00; font-weight: bold;">✨ 오늘 목표 달성!</div>' : ''}
+        </div>
+      `;
+      
+      modal.classList.add('show');
+    }
+
+    /* 목표 저장 */
+    function saveGoal() {
+      const input = document.getElementById('goalInput');
+      if(input) {
+        const newTarget = parseInt(input.value) || 5;
+        if(newTarget >= 1 && newTarget <= 50) {
+          const wasAchieved = dailyGoal.achieved;
+          dailyGoal.target = newTarget;
+          
+          // 목표 달성 상태 재계산
+          if(dailyGoal.completed >= dailyGoal.target) {
+            if(!wasAchieved) {
+              // 새로 달성한 경우에만 효과 표시
+              dailyGoal.achieved = true;
+              showGoalAchievedEffect();
+              log(`🎯 목표 달성! (목표 변경으로 달성)`);
+            } else {
+              dailyGoal.achieved = true;
+            }
+          } else {
+            dailyGoal.achieved = false;
+          }
+          
+          saveDailyGoal();
+          updateGoalUI();
+          log(`🎯 일일 목표가 ${newTarget}개로 변경되었습니다.`);
+        }
+      }
+    }
+
+    /* 목표 달성 효과 */
+    function showGoalAchievedEffect() {
+      // 햄스터에 특별 효과
+      hamster.classList.add('levelup');
+      setTimeout(() => {
+        hamster.classList.remove('levelup');
+      }, 1000);
+
+      // 화면 플래시 효과 (레벨업보다 부드럽게)
+      const flash = document.createElement('div');
+      flash.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(255,204,0,0.3) 0%, transparent 70%);
+        pointer-events: none;
+        z-index: 400;
+        animation: fadeOut 0.8s ease-out forwards;
+      `;
+      document.body.appendChild(flash);
+      setTimeout(() => flash.remove(), 800);
+    }
+
+    function closeStats() {
+      const modal = document.getElementById('statsModal');
+      modal.classList.remove('show');
+    }
+
+    /* 모달 외부 클릭 시 닫기 */
+    document.addEventListener('click', function(e) {
+      const modal = document.getElementById('statsModal');
+      if(e.target === modal) {
+        closeStats();
+      }
+    });
+
+    /* 키보드 'S' 키로 통계 열기 */
+    document.addEventListener('keydown', function(e) {
+      if(e.key === 's' || e.key === 'S') {
+        const activeElement = document.activeElement;
+        if(activeElement.tagName !== 'INPUT' && activeElement.tagName !== 'TEXTAREA') {
+          showStats();
+        }
+      }
+      if(e.key === 'Escape') {
+        closeStats();
+      }
+    });
+
+    /* 레벨별 칭호 시스템 */
+    function getTitleByLevel(level) {
+      if(level >= 1000) return "🌌 우주급 성장 마스터";
+      if(level >= 500) return "🌟 전설의 성장왕";
+      if(level >= 300) return "💎 다이아몬드 성장가";
+      if(level >= 200) return "👑 플래티넘 마스터";
+      if(level >= 150) return "🏆 골드 챔피언";
+      if(level >= 100) return "⭐ 골드 성장가";
+      if(level >= 80) return "🔥 열정의 마스터";
+      if(level >= 60) return "💪 습관의 달인";
+      if(level >= 50) return "🎯 목표 달성 전문가";
+      if(level >= 40) return "📚 지식의 수집가";
+      if(level >= 30) return "🎯 목표 달성자";
+      if(level >= 25) return "📊 성장 기록가";
+      if(level >= 20) return "✨ 성장하는 리더";
+      if(level >= 17) return "🏃 꾸준함의 증명자";
+      if(level >= 15) return "💪 노력하는 햄스터";
+      if(level >= 12) return "📝 습관 만들기 중";
+      if(level >= 10) return "📈 성장 중인 햄스터";
+      if(level >= 7) return "🌿 조금씩 자라는 중";
+      if(level >= 5) return "🌱 새싹 햄스터";
+      return "🐹 새내기 햄스터";
     }
 
     function updateUI() {
@@ -396,6 +1219,16 @@
       const pct = Math.min(100, (game.exp / game.maxExp) * 100);
       uiExp.style.width = `${pct}%`;
       expText.innerText = `${Math.floor(pct)}%`;
+      
+      // 칭호 업데이트
+      const title = getTitleByLevel(game.level);
+      const titleElement = document.getElementById('hamsterTitle');
+      if(titleElement) {
+        titleElement.textContent = title;
+      }
+      
+      // 목표 UI 업데이트
+      updateGoalUI();
     }
 
     function log(msg) {
@@ -406,7 +1239,62 @@
       if(uiLog.children.length > 20) uiLog.removeChild(uiLog.lastChild);
     }
 
+    function logLevelUp(msg) {
+      const item = document.createElement('div');
+      item.className = 'log-item new level-up';
+      item.innerText = `> ${msg}`;
+      uiLog.prepend(item);
+      if(uiLog.children.length > 20) uiLog.removeChild(uiLog.lastChild);
+    }
+
+    function logImportant(msg) {
+      const item = document.createElement('div');
+      item.className = 'log-item new important';
+      item.innerText = `> ${msg}`;
+      uiLog.prepend(item);
+      if(uiLog.children.length > 20) uiLog.removeChild(uiLog.lastChild);
+    }
+
     init();
+
+    /* 개발자 도구용 함수들 */
+    window.dev = {
+      // 경험치 추가
+      addExp: function(amount) {
+        addExp(amount);
+        console.log(`경험치 ${amount} 추가! 현재: ${game.exp}/${game.maxExp}`);
+      },
+      // 레벨업
+      levelUp: function() {
+        game.exp = game.maxExp;
+        addExp(0);
+        console.log(`레벨업! 현재 레벨: ${game.level}`);
+      },
+      // 레벨 직접 설정
+      setLevel: function(level) {
+        game.level = level;
+        game.exp = 0;
+        updateUI();
+        console.log(`레벨을 ${level}로 설정했습니다.`);
+      },
+      // 경험치 직접 설정
+      setExp: function(exp) {
+        game.exp = exp;
+        updateUI();
+        console.log(`경험치를 ${exp}로 설정했습니다.`);
+      },
+      // 현재 상태 확인
+      status: function() {
+        console.log(`레벨: ${game.level}, 경험치: ${game.exp}/${game.maxExp} (${Math.floor((game.exp/game.maxExp)*100)}%)`);
+      }
+    };
+
+    console.log('개발자 도구 사용법:');
+    console.log('dev.addExp(50) - 경험치 50 추가');
+    console.log('dev.levelUp() - 즉시 레벨업');
+    console.log('dev.setLevel(5) - 레벨을 5로 설정');
+    console.log('dev.setExp(80) - 경험치를 80으로 설정');
+    console.log('dev.status() - 현재 상태 확인');
   </script>
 </body>
 </html>
