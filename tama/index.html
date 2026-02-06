@@ -34,24 +34,51 @@
       --color-text: #0f380f;    
       --exp-bar-bg: #306230;    
       --exp-bar-fill: #0f380f;  
+
+      /* === A, B, C 버튼 (frame.png에 맞춤, 673x673 기준) === */
+      --btn-size: 56px;           /* 원형 버튼 지름 */
+      --btn-bottom: 68px;         /* 하단에서의 거리 */
+      --btn-b-bottom: 50px;       /* B만 더 아래 (숫자 줄이면 더 내려감) */
+      --btn-a-left: 178px;        /* A 버튼 왼쪽 끝 */
+      --btn-b-left: 308px;        /* B 버튼 왼쪽 끝 (중앙) */
+      --btn-c-left: 438px;        /* C 버튼 왼쪽 끝 */
     }
 
-    body {
+    * { box-sizing: border-box; }
+    html, body {
       margin: 0;
-      height: 100vh;
-      display: grid;
-      place-items: center;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow: hidden;
       background-color: #222;
       font-family: 'Press Start 2P', 'Noto Sans KR', sans-serif;
+    }
+
+    .device-wrapper {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
       overflow: hidden;
+    }
+
+    .scale-wrapper {
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
     }
 
     .device-container {
       position: relative;
       width: var(--frame-w);
       height: var(--frame-h);
-      transform-origin: center center;
-      transform: scale(0.8); 
+      transform-origin: top left;
+      flex-shrink: 0;
     }
 
     /* === 레이어 1: 상단 화면 === */
@@ -237,19 +264,19 @@
     .log-item.new { color: #d32f2f; font-weight: bold; animation: flash 0.5s; }
     @keyframes flash { 0% { opacity: 0; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
-    /* 버튼 영역 */
+    /* 버튼 영역 (frame.png A,B,C 원형 버튼에 맞춤) */
     .btn-area {
       position: absolute;
-      bottom: 85px;
-      width: 60px;
-      height: 60px;
+      bottom: var(--btn-bottom);
+      width: var(--btn-size);
+      height: var(--btn-size);
       z-index: 200;
       cursor: pointer;
       border-radius: 50%;
     }
-    .btn-a { left: 190px; }
-    .btn-b { left: 305px; }
-    .btn-c { left: 420px; }
+    .btn-a { left: var(--btn-a-left); }
+    .btn-b { left: var(--btn-b-left); bottom: var(--btn-b-bottom); }
+    .btn-c { left: var(--btn-c-left); }
 
     .bounce { animation: bounce 2s infinite ease-in-out; }
     @keyframes bounce { 
@@ -260,6 +287,8 @@
 </head>
 <body>
 
+  <div class="device-wrapper" id="deviceWrapper">
+  <div class="scale-wrapper" id="scaleWrapper">
   <div class="device-container" id="device">
     
     <div class="screen-top">
@@ -301,6 +330,8 @@
     <div class="btn-area btn-c" onclick="handleBtn('C')" title="놀아주기"></div>
 
   </div>
+  </div>
+  </div>
 
   <script>
     const hamster = document.getElementById('hamster');
@@ -319,7 +350,16 @@
 
     function fitScale() {
       const device = document.getElementById('device');
-      const scale = Math.min(window.innerWidth / 700, window.innerHeight / 750);
+      const scaleWrapper = document.getElementById('scaleWrapper');
+      const fw = 673, fh = 673;
+      const pad = 20;
+      const scale = Math.min(
+        (window.innerWidth - pad) / fw,
+        (window.innerHeight - pad) / fh,
+        1
+      );
+      scaleWrapper.style.width = (fw * scale) + 'px';
+      scaleWrapper.style.height = (fh * scale) + 'px';
       device.style.transform = `scale(${scale})`;
     }
 
