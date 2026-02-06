@@ -15,12 +15,11 @@
       --frame-w: 673px;
       --frame-h: 673px;
 
-      /* === [수정 1] 상단 화면 위치 안정화 === */
-      /* 98px(너무 높음) -> 122px (안정적) */
+      /* === 상단 화면 위치 안정화 === */
       --screen-top-x: 138px;
-      --screen-top-y: 98px; 
+      --screen-top-y: 112px;  /* 112px로 수정되어 검은 여백 제거됨 */
       --screen-top-w: 396px;
-      --screen-top-h: 300px; 
+      --screen-top-h: 290px; 
 
       /* === 하단 패널 위치 === */
       --panel-x: 142px;
@@ -35,13 +34,13 @@
       --exp-bar-bg: #306230;    
       --exp-bar-fill: #0f380f;  
 
-      /* === A, B, C 버튼 (frame.png에 맞춤, 673x673 기준) === */
-      --btn-size: 56px;           /* 원형 버튼 지름 */
-      --btn-bottom: 68px;         /* 하단에서의 거리 */
-      --btn-b-bottom: 50px;       /* B만 더 아래 (숫자 줄이면 더 내려감) */
-      --btn-a-left: 178px;        /* A 버튼 왼쪽 끝 */
-      --btn-b-left: 308px;        /* B 버튼 왼쪽 끝 (중앙) */
-      --btn-c-left: 438px;        /* C 버튼 왼쪽 끝 */
+      /* === A, B, C 버튼 위치 === */
+      --btn-size: 56px;
+      --btn-bottom: 68px;
+      --btn-b-bottom: 50px;
+      --btn-a-left: 178px;
+      --btn-b-left: 308px;
+      --btn-c-left: 438px;
     }
 
     * { box-sizing: border-box; }
@@ -51,12 +50,12 @@
       width: 100%;
       height: 100%;
       min-height: 100vh;
-      min-height: 100dvh;
       overflow: hidden;
       background-color: #222;
       font-family: 'Press Start 2P', 'Noto Sans KR', sans-serif;
     }
 
+    /* 반응형 래퍼 (Notion 임베드용) */
     .device-wrapper {
       position: fixed;
       inset: 0;
@@ -103,20 +102,19 @@
       display: block;
     }
 
-    /* [수정 2] 햄스터 위치 조정 */
+    /* 햄스터 위치 조정 */
     .hamster {
       position: absolute;
-      width: 280px;  /* 300px은 너무 클 수 있어 280px 유지 */
+      width: 280px; 
       height: 280px;
       left: 50%; 
-      /* 70%(너무 낮음) -> 60% (적당함) */
       top: 65%; 
       transform: translate(-50%, -50%);
       image-rendering: pixelated;
       z-index: 20;
     }
 
-
+    /* === 레이어 2: 하단 패널 === */
     .screen-bottom {
       position: absolute;
       left: var(--panel-x);
@@ -130,7 +128,7 @@
       display: flex;
       gap: 0; 
       color: var(--color-text);
-      align-items: stretch; /* 위아래 꽉 채우기 */
+      align-items: stretch;
     }
 
     /* === 레이어 3: 프레임 === */
@@ -143,60 +141,48 @@
     }
     .layer-frame img { width: 100%; display: block; }
 
-.panel-left {
-      /* ★ 핵심: 정확히 절반(50%)을 차지하게 강제 설정 */
+    /* 왼쪽 패널 (LV/EXP) */
+    .panel-left {
       flex: 1;
       width: 50%; 
-      
       display: flex;
       flex-direction: column;
       justify-content: center; 
       align-items: center; 
-      
-      /* 내용물 위치 미세 조정 (위로 살짝) */
       padding-top: 0;
       padding-bottom: 15px;
-      
-      /* 오른쪽 점선 (화면 정중앙에 위치하게 됨) */
       border-right: 2px dashed rgba(15, 56, 15, 0.5); 
     }
 
-/* 1. 통계 정보 한 줄 (컨테이너) */
     .stat-row {
       display: flex;
-      align-items: baseline;  /* 글자 아래 라인 맞추기 (EXP와 % 높이 맞춤) */
-      justify-content: space-between; /* 양쪽 끝으로 벌리기 */
-      
-      /* ★ 중요: 경험치 바(exp-track)의 너비와 똑같이 맞추세요 (예: 100px or 120px) */
+      align-items: baseline;
+      justify-content: space-between;
       width: 100px; 
-      
       margin-bottom: 2px;
     }
 
-    /* 2. 앞쪽 글자 ("LV", "EXP") 스타일 */
     .stat-row span:first-child {
-      font-size: 14px; /* 조금 키워서 제목답게 */
+      font-size: 14px;
       font-weight: bold;
-      color: #0f380f;  /* 진한 게임보이 녹색 */
+      color: #0f380f; 
     }
 
-    /* 3. 뒤쪽 글자 (퍼센트 숫자 "%") 스타일 */
     #expText {
       font-size: 10px; 
-      color: #306230; /* 약간 연한 색으로 힘 빼기 */
+      color: #306230;
       font-weight: normal;
     } 
-/* 4. 레벨 숫자 ("10") 스타일 */
-.val-level { 
+
+    .val-level { 
       font-size: 16px; 
-      color: #d32f2f;   /* 빨간색 강조 */
+      color: #d32f2f; 
       text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
     }
 
-/* 경험치 바 길이 및 두께 확대 */
-.exp-track {
-      width: 120px; /* 기존 100px -> 120px (더 길게) */
-      height: 14px; /* 기존 10px -> 14px (더 두껍게) */
+    .exp-track {
+      width: 120px;
+      height: 14px;
       background: var(--exp-bar-bg);
       border: 2px solid var(--color-text);
       border-radius: 4px;
@@ -210,24 +196,20 @@
       transition: width 0.3s;
     }
 
- /* [수정 1] 오른쪽 패널 위치 조정 (전체를 아래로 내림) */
- .panel-right {
+    /* 오른쪽 패널 (로그) */
+    .panel-right {
       flex: 1;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
       align-items: flex-start;
-      
-      /* ★ 핵심: 6px -> 18px로 늘려서 타이틀이 가려지지 않게 푹 내림 */
       padding-top: 10px; 
-      
       padding-left: 20px; 
       overflow: hidden;
     }
 
     .log-title {
       font-size: 8px;
-      /* ★ 핵심: 이 숫자를 늘리면 타이틀이 아래로 내려옵니다 */
       margin-top: 5px;
       margin-bottom: 10px;
       opacity: 0.6;
@@ -235,27 +217,19 @@
       letter-spacing: 1px;
     }
 
-/* [수정 2] 로그 내용 (타이틀과 간격 좁히기) */
-.log-content {
+    .log-content {
       width: 100%;
       flex: 1;
       font-family: 'Noto Sans KR', sans-serif;
       overflow-y: auto;
-      
       font-size: 11px;
       line-height: 1.5;
-      
       padding-bottom: 5px; 
       scrollbar-width: none; 
-      
       display: flex;
       flex-direction: column;
       justify-content: flex-start; 
-      
-      /* ★ 핵심: 타이틀과 내용 사이 간격을 2px로 좁힘 (착 붙이기) */
       gap: 2px; 
-      
-      /* 내부 여백 제거 (타이틀 바로 밑에 오도록) */
       padding-top: 0; 
     }
     .log-content::-webkit-scrollbar { display: none; }
@@ -264,7 +238,7 @@
     .log-item.new { color: #d32f2f; font-weight: bold; animation: flash 0.5s; }
     @keyframes flash { 0% { opacity: 0; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
-    /* 버튼 영역 (frame.png A,B,C 원형 버튼에 맞춤) */
+    /* 버튼 영역 */
     .btn-area {
       position: absolute;
       bottom: var(--btn-bottom);
@@ -300,12 +274,12 @@
       <div class="panel-left">
         <div class="stat-row">
           <span>LV.</span>
-          <span class="val-level" id="uiLevel">10</span>
+          <span class="val-level" id="uiLevel">1</span>
         </div>
 
         <div class="stat-row">
           <span>EXP</span>
-          <span id="expText">20%</span>
+          <span id="expText">0%</span>
         </div>
 
         <div class="exp-track">
@@ -340,7 +314,8 @@
     const expText = document.getElementById('expText');
     const uiLog = document.getElementById('uiLog');
 
-    let game = { level: 10, exp: 20, maxExp: 100, isBusy: false };
+    /* [수정] 시작 레벨 1, 경험치 0으로 초기화 */
+    let game = { level: 1, exp: 0, maxExp: 100, isBusy: false };
 
     function init() {
       updateUI();
@@ -383,13 +358,13 @@
       }
     }
 
-    /* [수정 4] 이미지 사라짐 방지 코드 추가 */
+    /* 이미지 사라짐 방지 */
     function changeAction(imgSrc, duration) {
       const originalSrc = './assets/normal.png';
       hamster.src = imgSrc;
       hamster.classList.remove('bounce');
       
-      // 이미지가 깨지면(404 에러 등) 즉시 원래대로 복구
+      // 이미지 로드 실패 시 원상복구
       hamster.onerror = function() {
         console.warn("이미지 로드 실패:", imgSrc);
         log("⚠ 오류: 이미지가 없어요!");
@@ -402,7 +377,7 @@
         hamster.src = originalSrc;
         hamster.classList.add('bounce');
         game.isBusy = false;
-        hamster.onerror = null; // 핸들러 초기화
+        hamster.onerror = null; 
       }, duration);
     }
 
