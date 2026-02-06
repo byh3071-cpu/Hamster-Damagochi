@@ -1,912 +1,397 @@
-<<<<<<< HEAD
 <!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Hamster Tamagotchi Widget</title>
+  <title>Hamster Tamagotchi Final Fix</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      /* === 프레임 설정 (frame.png 기준) === */
+      /* === 프레임 설정 === */
       --frame-w: 673px;
-      --frame-h: 673px; /* 정사각형에 가까운 비율로 추정됨 */
-      
-      /* 색상 테마 */
-      --color-screen-bg: #fdf6e3; /* 메인 화면 배경색 (이미지 로드 전) */
-      --color-ui-bg: #e8dcb9;     /* 하단 정보창 배경색 (베이지) */
-      --color-text: #4a3b32;      /* 텍스트 색상 (갈색) */
-      --color-accent: #00ff00;    /* 경험치 바 (형광 초록) */
+      --frame-h: 673px;
+
+      /* === [수정 1] 상단 화면 위치 안정화 === */
+      /* 98px(너무 높음) -> 122px (안정적) */
+      --screen-top-x: 138px;
+      --screen-top-y: 98px; 
+      --screen-top-w: 396px;
+      --screen-top-h: 300px; 
+
+      /* === 하단 패널 위치 === */
+      --panel-x: 142px;
+      --panel-y: 408px;
+      --panel-w: 390px;
+      --panel-h: 135px;
+
+      /* [테마] 게임보이 그린 */
+      --color-bg: #9bbc0f;      
+      --color-ui-bg: #8bac0f;   
+      --color-text: #0f380f;    
+      --exp-bar-bg: #306230;    
+      --exp-bar-fill: #0f380f;  
     }
 
     body {
       margin: 0;
-      padding: 0;
       height: 100vh;
       display: grid;
       place-items: center;
-      background-color: #1a1a1a;
-      font-family: 'Press Start 2P', cursive;
+      background-color: #222;
+      font-family: 'Press Start 2P', 'Noto Sans KR', sans-serif;
       overflow: hidden;
     }
 
-    /* === 전체 컨테이너 === */
     .device-container {
       position: relative;
       width: var(--frame-w);
       height: var(--frame-h);
-      /* 화면 크기에 맞춰 자동 축소 */
       transform-origin: center center;
       transform: scale(0.8); 
     }
 
-    /* === 레이어 1: 프레임 (맨 위) === */
-    .layer-frame {
+    /* === 레이어 1: 상단 화면 === */
+    .screen-top {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 100; /* 제일 위에 배치 */
-      pointer-events: none; /* 클릭 통과 */
+      left: var(--screen-top-x);
+      top: var(--screen-top-y);
+      width: var(--screen-top-w);
+      height: var(--screen-top-h);
+      background-color: var(--color-bg);
+      z-index: 10;
+      overflow: hidden; 
+      border-radius: 25px 25px 10px 10px; 
     }
-    .layer-frame img {
+
+    .bg-image {
       width: 100%;
+      height: 100%; 
+      object-fit: cover;
+      object-position: center bottom; 
+      image-rendering: pixelated;
       display: block;
     }
 
-    /* === 레이어 2: 메인 화면 (위쪽 구멍) === */
-    /* frame.png의 위쪽 투명 영역에 맞춘 좌표 */
-    .screen-top {
+    /* [수정 2] 햄스터 위치 조정 */
+    .hamster {
       position: absolute;
-      top: 130px;    /* 위에서부터의 거리 */
-      left: 135px;   /* 왼쪽에서부터의 거리 */
-      width: 400px;  /* 화면 너비 */
-      height: 300px; /* 화면 높이 */
-      background-color: var(--color-screen-bg);
-      z-index: 10;
-      overflow: hidden;
-      border-radius: 20px;
-    }
-
-    /* 배경 이미지 */
-    .bg-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      image-rendering: pixelated;
-    }
-
-    /* 햄스터 캐릭터 공통 */
-    .character {
-      position: absolute;
-      width: 180px;  /* 캐릭터 크기 조정 */
-      height: 180px;
-      left: 50%;
-      top: 55%;      /* 바닥(톱밥) 위에 서 있는 위치 */
-      transform: translate(-50%, -50%);
-      image-rendering: pixelated;
-      transition: opacity 0.2s;
-    }
-
-    /* IDLE 상태 애니메이션 (숨쉬기) */
-    .character.idle {
-      animation: breathe 2s infinite ease-in-out;
-    }
-    @keyframes breathe {
-      0%, 100% { transform: translate(-50%, -50%) scaleY(1); }
-      50% { transform: translate(-50%, -50%) scaleY(1.05); }
-    }
-
-    /* Running 상태 (쳇바퀴 스프라이트) */
-    /* 배경의 쳇바퀴 위치에 정확히 덮어씌워야 함 */
-    .character.running {
-      opacity: 0; /* img 태그 숨기기 */
-    }
-    
-    /* Running 상태를 위한 스프라이트 오버레이 */
-    .sprite-overlay {
-      display: none;
-      position: absolute;
-      /* 배경 이미지의 쳇바퀴 위치에 맞춰 조정 */
-      left: 20px; 
-      top: 40px;
-      width: 280px;
+      width: 280px;  /* 300px은 너무 클 수 있어 280px 유지 */
       height: 280px;
-      background-image: url('./assets/wheel.png');
-      background-size: 400% 200%; /* 2행 4열 (8프레임) */
-      background-repeat: no-repeat;
-      background-position: 0% 0%;
+      left: 50%; 
+      /* 70%(너무 낮음) -> 60% (적당함) */
+      top: 65%; 
+      transform: translate(-50%, -50%);
       image-rendering: pixelated;
       z-index: 20;
     }
-    .sprite-overlay.active {
-      display: block;
-      animation: runSprite 0.8s steps(8) infinite;
-    }
 
-    @keyframes runSprite {
-      0%{   background-position: 0%    0%; }    /* 프레임 1 */
-      12.5%{ background-position: 33.33% 0%; }  /* 프레임 2 */
-      25%{  background-position: 66.66% 0%; }  /* 프레임 3 */
-      37.5%{ background-position: 100%   0%; }  /* 프레임 4 */
-      50%{  background-position: 0%    100%; }  /* 프레임 5 */
-      62.5%{ background-position: 33.33% 100%; } /* 프레임 6 */
-      75%{  background-position: 66.66% 100%; } /* 프레임 7 */
-      87.5%{ background-position: 100%   100%; } /* 프레임 8 */
-      100%{ background-position: 0%    0%; }    /* 처음으로 */
-    }
 
-    /* === 레이어 3: 정보 화면 (아래쪽 구멍) === */
-    /* frame.png의 아래쪽 투명 영역에 맞춘 좌표 */
     .screen-bottom {
       position: absolute;
-      top: 460px;
-      left: 135px;
-      width: 400px;
-      height: 120px;
-      background-color: var(--color-ui-bg); /* 베이지색 배경 */
+      left: var(--panel-x);
+      top: var(--panel-y);
+      width: var(--panel-w);
+      height: var(--panel-h);
+      background-color: var(--color-ui-bg);
       z-index: 10;
-      padding: 15px;
-      box-sizing: border-box;
+      border-radius: 5px 5px 30px 30px; 
+      padding: 0; 
       display: flex;
-      flex-direction: row; /* 좌우 배치 */
-      gap: 15px;
-      border-radius: 10px;
+      gap: 0; 
+      color: var(--color-text);
+      align-items: stretch; /* 위아래 꽉 채우기 */
     }
 
-    /* 왼쪽 패널: 레벨/경험치 */
-    .stat-panel {
-      flex: 0 0 180px; /* 고정 너비 */
+    /* === 레이어 3: 프레임 === */
+    .layer-frame {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 100; 
+      pointer-events: none; 
+    }
+    .layer-frame img { width: 100%; display: block; }
+
+.panel-left {
+      /* ★ 핵심: 정확히 절반(50%)을 차지하게 강제 설정 */
+      flex: 1;
+      width: 50%; 
+      
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      justify-content: center; 
+      align-items: center; 
+      
+      /* 내용물 위치 미세 조정 (위로 살짝) */
+      padding-top: 0;
+      padding-bottom: 15px;
+      
+      /* 오른쪽 점선 (화면 정중앙에 위치하게 됨) */
+      border-right: 2px dashed rgba(15, 56, 15, 0.5); 
     }
 
+/* 1. 통계 정보 한 줄 (컨테이너) */
     .stat-row {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 11px;
-      color: var(--color-text);
+      align-items: baseline;  /* 글자 아래 라인 맞추기 (EXP와 % 높이 맞춤) */
+      justify-content: space-between; /* 양쪽 끝으로 벌리기 */
+      
+      /* ★ 중요: 경험치 바(exp-track)의 너비와 똑같이 맞추세요 (예: 100px or 120px) */
+      width: 100px; 
+      
+      margin-bottom: 2px;
     }
 
-    /* 경험치 바 디자인 */
-    .exp-container {
-      flex-grow: 1;
-      height: 14px;
-      background: #555;
-      border: 2px solid #000;
+    /* 2. 앞쪽 글자 ("LV", "EXP") 스타일 */
+    .stat-row span:first-child {
+      font-size: 14px; /* 조금 키워서 제목답게 */
+      font-weight: bold;
+      color: #0f380f;  /* 진한 게임보이 녹색 */
+    }
+
+    /* 3. 뒤쪽 글자 (퍼센트 숫자 "%") 스타일 */
+    #expText {
+      font-size: 10px; 
+      color: #306230; /* 약간 연한 색으로 힘 빼기 */
+      font-weight: normal;
+    } 
+/* 4. 레벨 숫자 ("10") 스타일 */
+.val-level { 
+      font-size: 16px; 
+      color: #d32f2f;   /* 빨간색 강조 */
+      text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+    }
+
+/* 경험치 바 길이 및 두께 확대 */
+.exp-track {
+      width: 120px; /* 기존 100px -> 120px (더 길게) */
+      height: 14px; /* 기존 10px -> 14px (더 두껍게) */
+      background: var(--exp-bar-bg);
+      border: 2px solid var(--color-text);
+      border-radius: 4px;
       position: relative;
-      min-width: 120px;
+      overflow: hidden;
     }
     .exp-fill {
-      width: 0%;
       height: 100%;
-      background-color: var(--color-accent);
-      transition: width 0.3s ease-out;
-      box-shadow: 0 0 5px var(--color-accent);
+      width: 0%;
+      background-color: var(--exp-bar-fill);
+      transition: width 0.3s;
     }
 
-    /* 오른쪽 패널: 로그 영역 */
-    .log-panel {
-      flex: 1; /* 남은 공간 차지 */
+ /* [수정 1] 오른쪽 패널 위치 조정 (전체를 아래로 내림) */
+ .panel-right {
+      flex: 1;
       display: flex;
       flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      
+      /* ★ 핵심: 6px -> 18px로 늘려서 타이틀이 가려지지 않게 푹 내림 */
+      padding-top: 10px; 
+      
+      padding-left: 20px; 
+      overflow: hidden;
     }
 
     .log-title {
-      font-size: 10px;
-      color: var(--color-text);
-      margin-bottom: 4px;
+      font-size: 8px;
+      /* ★ 핵심: 이 숫자를 늘리면 타이틀이 아래로 내려옵니다 */
+      margin-top: 5px;
+      margin-bottom: 10px;
+      opacity: 0.6;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
-    .log-area {
+/* [수정 2] 로그 내용 (타이틀과 간격 좁히기) */
+.log-content {
+      width: 100%;
       flex: 1;
-      background: rgba(255, 255, 255, 0.5);
-      border: 2px solid #bba;
-      font-size: 9px;
-      padding: 6px;
+      font-family: 'Noto Sans KR', sans-serif;
       overflow-y: auto;
-      color: #333;
-      line-height: 1.4;
-      min-height: 0; /* flex에서 스크롤 작동하게 */
-    }
-
-    /* === 개발용 버튼 (화면 밖) === */
-    .controls {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
+      
+      font-size: 11px;
+      line-height: 1.5;
+      
+      padding-bottom: 5px; 
+      scrollbar-width: none; 
+      
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      z-index: 200;
+      justify-content: flex-start; 
+      
+      /* ★ 핵심: 타이틀과 내용 사이 간격을 2px로 좁힘 (착 붙이기) */
+      gap: 2px; 
+      
+      /* 내부 여백 제거 (타이틀 바로 밑에 오도록) */
+      padding-top: 0; 
     }
-    .btn {
-      background: #fff;
-      border: 4px solid #000;
-      padding: 10px;
-      font-family: inherit;
-      cursor: pointer;
-      font-size: 10px;
-    }
-    .btn:active { transform: scale(0.95); }
+    .log-content::-webkit-scrollbar { display: none; }
+    
+    .log-item { margin-bottom: 3px; }
+    .log-item.new { color: #d32f2f; font-weight: bold; animation: flash 0.5s; }
+    @keyframes flash { 0% { opacity: 0; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
+    /* 버튼 영역 */
+    .btn-area {
+      position: absolute;
+      bottom: 85px;
+      width: 60px;
+      height: 60px;
+      z-index: 200;
+      cursor: pointer;
+      border-radius: 50%;
+    }
+    .btn-a { left: 190px; }
+    .btn-b { left: 305px; }
+    .btn-c { left: 420px; }
+
+    .bounce { animation: bounce 2s infinite ease-in-out; }
+    @keyframes bounce { 
+      0%, 100% { transform: translate(-50%, -50%) translateY(0); } 
+      50% { transform: translate(-50%, -50%) translateY(-6px); } 
+    }
   </style>
 </head>
 <body>
 
   <div class="device-container" id="device">
     
+    <div class="screen-top">
+      <img src="./assets/bg.png" class="bg-image" alt="배경">
+      <img src="./assets/normal.png" class="hamster bounce" id="hamster" alt="햄스터">
+    </div>
+
+    <div class="screen-bottom">
+      <div class="panel-left">
+        <div class="stat-row">
+          <span>LV.</span>
+          <span class="val-level" id="uiLevel">10</span>
+        </div>
+
+        <div class="stat-row">
+          <span>EXP</span>
+          <span id="expText">20%</span>
+        </div>
+
+        <div class="exp-track">
+          <div class="exp-fill" id="uiExp"></div>
+        </div>
+      </div>
+      <div class="panel-right">
+        <div class="log-title">SYSTEM LOG</div>
+        <div class="log-content" id="uiLog">
+          <div>> 시스템 가동..</div>
+          <div>> 햄스터가 기다려요!</div>
+        </div>
+      </div>
+    </div>
+
     <div class="layer-frame">
       <img src="./assets/frame.png" alt="Frame">
     </div>
 
-    <div class="screen-top">
-      <img src="./assets/bg.png" class="bg-image" alt="Background">
-      
-      <img src="./assets/normal.png" class="character idle" id="charImg" alt="Character">
-      
-      <div class="sprite-overlay" id="wheelSprite"></div>
-    </div>
+    <div class="btn-area btn-a" onclick="handleBtn('A')" title="밥주기"></div>
+    <div class="btn-area btn-b" onclick="handleBtn('B')" title="쓰다듬기"></div>
+    <div class="btn-area btn-c" onclick="handleBtn('C')" title="놀아주기"></div>
 
-    <div class="screen-bottom">
-      <!-- 왼쪽: 레벨/경험치 -->
-      <div class="stat-panel">
-        <div class="stat-row">
-          <span>LV.<span id="levelVal">1</span></span>
-        </div>
-        <div class="stat-row">
-          <span>EXP</span>
-          <div class="exp-container">
-            <div class="exp-fill" id="expFill"></div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- 오른쪽: 로그 -->
-      <div class="log-panel">
-        <div class="log-title">LOG</div>
-        <div class="log-area" id="logText">
-          <div>> Welcome to Hamster World!</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <div class="controls">
-    <button class="btn" onclick="triggerAction('routine')">🏋️ Routine (+20 EXP)</button>
-    <button class="btn" onclick="triggerAction('task')">📝 Task (+10 EXP)</button>
-    <button class="btn" onclick="resetGame()">🔄 Reset</button>
   </div>
 
   <script>
-    /* === 스크립트 로직 === */
-    const charImg = document.getElementById('charImg');
-    const wheelSprite = document.getElementById('wheelSprite');
-    const expFill = document.getElementById('expFill');
-    const levelVal = document.getElementById('levelVal');
-    const logText = document.getElementById('logText');
+    const hamster = document.getElementById('hamster');
+    const uiLevel = document.getElementById('uiLevel');
+    const uiExp = document.getElementById('uiExp');
+    const expText = document.getElementById('expText');
+    const uiLog = document.getElementById('uiLog');
 
-    let state = {
-      level: 1,
-      exp: 0,
-      status: 'IDLE', // IDLE, RUNNING, EATING, SAD
-      isBusy: false
-    };
+    let game = { level: 10, exp: 20, maxExp: 100, isBusy: false };
 
-    // 초기화
     function init() {
-      renderUI();
-      // 반응형 스케일링
-      window.addEventListener('resize', fitToScreen);
-      fitToScreen();
+      updateUI();
+      fitScale();
+      window.addEventListener('resize', fitScale);
     }
 
-    // 화면 크기에 맞춰 기기 크기 조절
-    function fitToScreen() {
-      const container = document.getElementById('device');
+    function fitScale() {
+      const device = document.getElementById('device');
       const scale = Math.min(window.innerWidth / 700, window.innerHeight / 750);
-      container.style.transform = `scale(${scale})`;
+      device.style.transform = `scale(${scale})`;
     }
 
-    function triggerAction(type) {
-      if (state.isBusy) return;
-      state.isBusy = true;
+    function handleBtn(btn) {
+      if(game.isBusy) return;
+      game.isBusy = true;
 
-      if (type === 'routine') {
-        // 루틴 완료 -> 쳇바퀴 달리기
-        log("> Routine Complete! Running...");
-        setExp(20);
-        
-        // 1. 캐릭터 숨기고 스프라이트 켜기
-        charImg.style.display = 'none';
-        wheelSprite.classList.add('active');
-        
-        // 4초 뒤 복귀
-        setTimeout(() => {
-          wheelSprite.classList.remove('active');
-          charImg.style.display = 'block';
-          state.isBusy = false;
-        }, 4000);
-
-      } else if (type === 'task') {
-        // 할일 완료 -> 먹기
-        log("> Task Done! Yummy!");
-        setExp(10);
-        
-        // 이미지 변경
-        charImg.src = './assets/eat.png';
-        charImg.className = 'character'; // idle 애니메이션 끄기
-        
-        setTimeout(() => {
-          charImg.src = './assets/normal.png';
-          charImg.className = 'character idle';
-          state.isBusy = false;
-        }, 3000);
+      // [주의] 폴더에 eat.png, happy.png 파일이 꼭 있어야 합니다.
+      if(btn === 'A') {
+        log("냠냠! 해바라기씨 맛있다 +10");
+        changeAction('./assets/eat.png', 2000);
+        addExp(10);
+      } else if(btn === 'B') {
+        log("쓰담쓰담.. 기분 최고! +5");
+        changeAction('./assets/happy.png', 2000);
+        addExp(5);
+      } else if(btn === 'C') {
+        log("쳇바퀴 돌리기! 영차영차 +15");
+        changeAction('./assets/happy.png', 2000); 
+        addExp(15);
       }
     }
 
-    function setExp(amount) {
-      state.exp += amount;
-      if (state.exp >= 100) {
-        state.level++;
-        state.exp -= 100;
-        log(`🎉 Level Up! LV.${state.level}`);
-        
-        // 레벨업 리액션 (Happy)
-        const prevSrc = charImg.src;
-        charImg.src = './assets/happy.png';
-        setTimeout(() => {
-          if(!state.isBusy) charImg.src = './assets/normal.png';
-        }, 2000);
-      }
-      renderUI();
+    /* [수정 4] 이미지 사라짐 방지 코드 추가 */
+    function changeAction(imgSrc, duration) {
+      const originalSrc = './assets/normal.png';
+      hamster.src = imgSrc;
+      hamster.classList.remove('bounce');
+      
+      // 이미지가 깨지면(404 에러 등) 즉시 원래대로 복구
+      hamster.onerror = function() {
+        console.warn("이미지 로드 실패:", imgSrc);
+        log("⚠ 오류: 이미지가 없어요!");
+        hamster.src = originalSrc;
+        hamster.classList.add('bounce');
+        game.isBusy = false;
+      };
+
+      setTimeout(() => {
+        hamster.src = originalSrc;
+        hamster.classList.add('bounce');
+        game.isBusy = false;
+        hamster.onerror = null; // 핸들러 초기화
+      }, duration);
     }
 
-    function renderUI() {
-      levelVal.innerText = state.level;
-      expFill.style.width = `${state.exp}%`;
+    function addExp(amount) {
+      game.exp += amount;
+      if(game.exp >= game.maxExp) {
+        game.level++;
+        game.exp -= game.maxExp;
+        log(`🔥 레벨 업! LV.${game.level}🔥`);
+      }
+      updateUI();
+    }
+
+    function updateUI() {
+      uiLevel.innerText = game.level;
+      const pct = Math.min(100, (game.exp / game.maxExp) * 100);
+      uiExp.style.width = `${pct}%`;
+      expText.innerText = `${Math.floor(pct)}%`;
     }
 
     function log(msg) {
-      const entry = document.createElement('div');
-      entry.textContent = msg;
-      entry.style.marginBottom = '2px';
-      logText.insertBefore(entry, logText.firstChild);
-      
-      // 최대 5개까지만 표시
-      while (logText.children.length > 5) {
-        logText.removeChild(logText.lastChild);
-      }
-    }
-
-    function resetGame() {
-      state.level = 1;
-      state.exp = 0;
-      state.isBusy = false;
-      charImg.style.display = 'block';
-      charImg.src = './assets/normal.png';
-      charImg.className = 'character idle';
-      wheelSprite.classList.remove('active');
-      renderUI();
-      logText.innerHTML = '<div>> Welcome to Hamster World!</div>';
+      const item = document.createElement('div');
+      item.className = 'log-item new';
+      item.innerText = `> ${msg}`;
+      uiLog.prepend(item);
+      if(uiLog.children.length > 20) uiLog.removeChild(uiLog.lastChild);
     }
 
     init();
   </script>
 </body>
 </html>
-=======
-<!doctype html>
-<html lang="ko">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Hamster Damagochi Widget</title>
-
-  <!-- ✅ 픽셀 폰트 (LEVEL 표시용) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-
-    <style>
-    :root{
-      --screen-inset: 8px;  /* ✅ 여기 숫자만 바꾸면 비침 조절됨(6~12 추천) */
-      /* =========================================================
-        ✅ 여기서 위치 조절하세요 (프레임 기준 좌표)
-        - 단위: px
-        - 기준: game-container (frame.png) 좌상단 (0,0)
-      ========================================================= */
-
-      /* 프레임 원본 크기 */
-      --frame-w: 673px;
-      --frame-h: 371px;
-
-      /* (A) 화면 구멍(원형) 위치/크기: bg와 캐릭터가 들어가는 영역 */
-      --screen-left: 170px;  /* 약간 오른쪽 */
-      --screen-top:  10px;   /* 위로 올림 */
-      --screen-size: 330px;  /* 살짝 줄임(삐져나옴 방지) */
-
-      /* (B) 캐릭터 위치/크기 (화면 구멍 안 기준) */
-      --ham-size: 300px; /* 크게 */
-      --ham-x: 50%;   /* 화면 구멍 내부에서 좌우(%) */
-      --ham-y: 68%;   /* 살짝 아래로 (발이 바닥에 닿는 느낌) */
-
-      /* (C) 오른쪽 버튼 3개(투명 클릭 영역) */
-      /* ◀ */
-      --btnL-left: 520px;
-      --btnL-top:  240px;
-      --btnL-w:    44px;
-      --btnL-h:    40px;
-
-      /* ■ (밥 주기) */
-      --btnC-left: 565px;
-      --btnC-top:  240px;
-      --btnC-w:    48px;
-      --btnC-h:    40px;
-
-      /* ▶ (쓰다듬기) */
-      --btnR-left: 613px;
-      --btnR-top:  240px;
-      --btnR-w:    48px;
-      --btnR-h:    40px;
-
-      /* (D) EXP 바 슬롯(프레임 왼쪽 EXP 빈칸에 맞추기) */
-      --exp-left:  68px;
-      --exp-top:   254px;
-      --exp-w:     94px;
-      --exp-h:     13px;
-
-      /* (E) LEVEL 숫자 슬롯(프레임 왼쪽 LEVEL 빈칸에 맞추기) */
-      --lvl-left:  46px;
-      --lvl-top:   283px;
-
-      /* ========================================================= */
-
-      /* 색상 */
-      --bg: #0c1020;
-      --text: #e8ecff;
-      --muted: rgba(232,236,255,.75);
-      --bar-bg: rgba(0,0,0,.35);
-      --bar-fill1: #7cffb2;
-      --bar-fill2: #7cc7ff;
-
-      /* 버튼 클릭 피드백 */
-      --press-scale: 0.96;
-
-      /* 배경 미세 확대(가장자리 빈틈 방지) */
-      --bg-scale: 1.04;
-    }
-
-    *{ box-sizing:border-box; }
-    html, body { height: 100%; }
-
-    body{
-      margin:0;
-      display:grid;
-      place-items:center;
-      background:
-        radial-gradient(1200px 600px at 50% 30%, #18224a 0%, rgba(24,34,74,0) 60%),
-        linear-gradient(180deg, #070a16 0%, var(--bg) 60%);
-      color:var(--text);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
-      padding: 12px;
-    }
-
-    /* ✅ 노션 임베드/모바일 대응: JS가 scale을 계산해서 변수를 넣음 */
-    .wrap{
-      width: min(100%, var(--frame-w));
-      display:grid;
-      justify-items:center;
-    }
-
-    .game-container{
-      position: relative;
-      width: var(--frame-w);
-      height: var(--frame-h);
-      transform: scale(var(--scale, 1));
-      transform-origin: top center;
-      will-change: transform;
-    }
-
-    /* ===== Layer 1 (z:10) - bg ===== */
-    .layer-bg{
-      position:absolute;
-      left: var(--screen-left);
-      top:  var(--screen-top);
-      width: var(--screen-size);
-      height: var(--screen-size);
-      z-index: 10;
-      overflow:hidden;
-      border-radius: 999px;
-      clip-path: circle(calc(50% - var(--screen-inset)) at 50% 50%);
-      pointer-events:none;
-      box-shadow: 0 0 0 6px rgba(0,0,0,0.0); /* 자리만 유지용(옵션) */
-    }
-    .layer-bg img{
-      width:100%;
-      height:100%;
-      object-fit: cover;
-      transform: scale(var(--bg-scale));
-      image-rendering: pixelated;
-      user-select:none;
-      -webkit-user-drag:none;
-    }
-
-    /* ===== Layer 2 (z:20) - hamster ===== */
-    .layer-ham{
-      position:absolute;
-      left: var(--screen-left);
-      top:  var(--screen-top);
-      width: var(--screen-size);
-      height: var(--screen-size);
-      z-index: 20;
-      pointer-events:none;
-      overflow: hidden;
-      border-radius: 999px;
-      clip-path: circle(calc(50% - var(--screen-inset)) at 50% 50%);
-    }
-    .ham{
-      position:absolute;
-      left: var(--ham-x);
-      top:  var(--ham-y);
-      width: var(--ham-size);
-      height: var(--ham-size);
-      transform: translate(-50%,-50%);
-      image-rendering: pixelated;
-      user-select:none;
-      -webkit-user-drag:none;
-    }
-
-    /* ✅ 기본 상태: 둥실둥실 */
-    .ham.bounce{
-      animation: breathe 2.6s ease-in-out infinite;
-    }
-    @keyframes breathe{
-      0%,100%{ transform: translate(-50%,-50%) translateY(0); }
-      50%{     transform: translate(-50%,-50%) translateY(-6px); }
-    }
-
-    /* ===== Layer 3 (z:30) - frame ===== */
-    .layer-frame{
-      position:absolute;
-      inset:0;
-      z-index: 30;
-      pointer-events:none;
-    }
-    .layer-frame img{
-      width:100%;
-      height:100%;
-      image-rendering: pixelated;
-      user-select:none;
-      -webkit-user-drag:none;
-    }
-
-    /* ===== Layer 4 (z:40) - UI overlay ===== */
-    .layer-ui{
-      position:absolute;
-      inset:0;
-      z-index: 40;
-    }
-
-    /* 투명 버튼들 */
-    .hit{
-      position:absolute;
-      background: rgba(255,255,255,0); /* 완전 투명 */
-      border-radius: 10px;
-      cursor:pointer;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
-      transform-origin:center;
-    }
-    .hit:active{
-      transform: scale(var(--press-scale));
-    }
-
-    .hit.left{
-      left: var(--btnL-left);
-      top:  var(--btnL-top);
-      width: var(--btnL-w);
-      height:var(--btnL-h);
-    }
-    .hit.center{
-      left: var(--btnC-left);
-      top:  var(--btnC-top);
-      width: var(--btnC-w);
-      height:var(--btnC-h);
-    }
-    .hit.right{
-      left: var(--btnR-left);
-      top:  var(--btnR-top);
-      width: var(--btnR-w);
-      height:var(--btnR-h);
-    }
-
-    /* EXP 바 (프레임 왼쪽 슬롯에 맞춤) */
-    .exp-bar{
-      position:absolute;
-      left: var(--exp-left);
-      top:  var(--exp-top);
-      width: var(--exp-w);
-      height:var(--exp-h);
-      background: transparent;  /* ✅ 검은 배경 제거 */
-      border-radius: 3px;
-      overflow:hidden;
-      box-shadow: none;   /* ✅ 테두리도 제거(프레임 슬롯만 살리기) */
-      pointer-events:none;
-    }
-    .exp-fill{
-      height:100%;
-      width:0%;
-      background: linear-gradient(90deg, var(--bar-fill1), var(--bar-fill2));
-      transition: width 180ms ease;
-      box-shadow: 0 0 8px rgba(124,255,178,.18);
-    }
-
-    /* LEVEL 텍스트 */
-    .level{
-      position:absolute;
-      left: var(--lvl-left);
-      top:  var(--lvl-top);
-      font-family: "Press Start 2P", system-ui, sans-serif;
-      font-size: 9px;
-      letter-spacing: 0.5px;
-      color: rgba(255,255,255,.92);
-      text-shadow: 0 1px 0 rgba(0,0,0,.55);
-      pointer-events:none;
-      width: 96px;              /* ✅ LEVEL 슬롯 폭(여기만 미세조정) */
-      text-align: center;       /* ✅ 숫자 중앙정렬 */
-      line-height: 1;           /* 줄높이 영향 줄이기 */
-      height: 14px;            /* 슬롯 높이 느낌 */
-      display:flex;
-      align-items:center;
-      justify-content:flex-end; /* ✅ 큰 숫자도 오른쪽 기준으로 안정 */
-      padding-right: 6px;       /* 슬롯 안쪽 여백 */
-    }
-
-    /* 작은 상태 텍스트(디버그/옵션) */
-    .debug{
-      position:absolute;
-      left: 18px;
-      top:  18px;
-      font-size: 10px;
-      color: var(--muted);
-      pointer-events:none;
-      display:none; /* 필요하면 block */
-    }
-    /* ✅ 디버그: hitbox 보이기(토글) */
-    .debug-hit .hit{
-      outline: 1px dashed rgba(124,199,255,.9);
-      background: rgba(124,199,255,.12);
-    }
-  </style>
-</head>
-
-<body>
-  <div class="wrap">
-    <div class="game-container" id="game">
-      <!-- Layer 1 -->
-      <div class="layer-bg">
-        <img src="./assets/bg.png" alt="">
-      </div>
-
-      <!-- Layer 2 -->
-      <div class="layer-ham">
-        <img id="ham" class="ham bounce" src="./assets/normal.png" alt="hamster">
-      </div>
-
-      <!-- Layer 3 -->
-      <div class="layer-frame">
-        <img src="./assets/frame.png" alt="">
-      </div>
-
-      <!-- Layer 4 -->
-      <div class="layer-ui">
-        <!-- Invisible buttons -->
-        <div class="hit left"   id="btnLeft"   aria-label="left button"></div>
-        <div class="hit center" id="btnFeed"   aria-label="feed button"></div>
-        <div class="hit right"  id="btnPet"    aria-label="pet button"></div>
-
-        <!-- EXP -->
-        <div class="exp-bar" aria-hidden="true">
-          <div class="exp-fill" id="expFill"></div>
-        </div>
-
-        <!-- LEVEL -->
-        <div class="level" id="lvlText">1</div>
-
-        <!-- debug -->
-        <div class="debug" id="dbg"></div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    /* =========================================================
-      Hamster Damagochi Widget (Single File)
-      - localStorage로 EXP/LEVEL 유지
-      - Feed(■): exp +10, 2초 eat
-      - Pet(▶):  exp +5,  2초 happy
-      - normal 상태에서만 bounce
-    ========================================================= */
-
-    const IMG = {
-      normal: "./assets/normal.png",
-      eat:    "./assets/eat.png",
-      happy:  "./assets/happy.png",
-      sad:    "./assets/sad.png",
-    };
-
-    const LS_KEY = "hamster_damagochi_v1";
-
-    // ✅ mood(자동 sad) 기능 ON/OFF 스위치
-    const ENABLE_MOOD = false;
-
-    const game = document.getElementById("game");
-    const ham = document.getElementById("ham");
-    const expFill = document.getElementById("expFill");
-    const lvlText = document.getElementById("lvlText");
-    const dbg = document.getElementById("dbg");
-
-    const btnLeft = document.getElementById("btnLeft"); // 기능 없음(확장용)
-    const btnFeed = document.getElementById("btnFeed"); // ■
-    const btnPet  = document.getElementById("btnPet");  // ▶
-
-    let level = 1;
-    let exp = 0;         // 0~99 (100 되면 레벨업)
-    let state = "normal";
-    let busy = false;
-
-    // 옵션: 시간이 지나면 우울(나중 확장용)
-    let mood = 80;       // 0~100
-
-    function load(){
-      try{
-        const raw = localStorage.getItem(LS_KEY);
-        if(!raw) return;
-        const data = JSON.parse(raw);
-        if(typeof data.level === "number") level = clampInt(data.level, 1, 999);
-        if(typeof data.exp === "number")   exp   = clampInt(data.exp, 0, 99);
-        if(typeof data.mood === "number")  mood  = clampInt(data.mood, 0, 100);
-      }catch(e){}
-    }
-
-    function save(){
-      const data = { level, exp, mood };
-      localStorage.setItem(LS_KEY, JSON.stringify(data));
-    }
-
-    function clampInt(n, min, max){
-      n = Math.floor(Number(n) || 0);
-      if(n < min) return min;
-      if(n > max) return max;
-      return n;
-    }
-
-    function setState(next){
-      state = next;
-      ham.src = IMG[next] || IMG.normal;
-
-      // ✅ normal일 때만 둥실둥실
-      if(next === "normal") ham.classList.add("bounce");
-      else ham.classList.remove("bounce");
-    }
-
-    function updateUI(){
-      // EXP는 0~99, 바는 0~100%로 표시
-      const pct = Math.min(100, Math.max(0, (exp / 100) * 100));
-      expFill.style.width = pct + "%";
-      lvlText.textContent = String(level);
-
-      // dbg.textContent = `state=${state} exp=${exp} lvl=${level} mood=${mood}`;
-    }
-
-    function addExp(amount){
-      amount = clampInt(amount, 0, 1000);
-      let total = exp + amount;
-
-      let leveledUp = false;
-      while(total >= 100){
-        total -= 100;
-        level += 1;
-        leveledUp = true;
-      }
-
-      exp = total;
-
-      if(leveledUp) levelUpFlash();  // ✅ 한 번만 연출
-
-      save();
-      updateUI();
-    }
-    let flashTimer = null;
-    function levelUpFlash(){
-      // busy 중이어도 레벨업 표시는 짧게만
-      clearTimeout(flashTimer);
-      const prev = state;
-      setState("happy");
-      flashTimer = setTimeout(()=>{
-        // 액션 중이면 상태를 건드리지 않음(액션이 끝나면 normal로 돌아감)
-        if(!busy) setState("normal");
-        else setState(prev);
-      }, 700);
-    }
-
-    async function doAction(kind){
-      if(busy) return;
-      busy = true;
-
-      if(kind === "feed"){
-        // ■ 밥 주기: +10, 2초 eat
-        addExp(10);
-        mood = clampInt(mood + 6, 0, 100);
-        setState("eat");
-        save(); updateUI();
-        await wait(2000);
-        setState("normal");
-      }
-
-      if(kind === "pet"){
-        // ▶ 쓰다듬기: +5, 2초 happy
-        addExp(5);
-        mood = clampInt(mood + 10, 0, 100);
-        setState("happy");
-        save(); updateUI();
-        await wait(2000);
-        setState("normal");
-      }
-
-      busy = false;
-    }
-
-    function wait(ms){ return new Promise(r=>setTimeout(r, ms)); }
-
-    // ✅ 반응형 스케일: 노션 임베드/모바일에서 잘리지 않게
-    function applyScale(){
-      const fw = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--frame-w")) || 673;
-      const pad = 24; // body padding 고려
-      const maxW = Math.max(320, window.innerWidth - pad);
-      const s = Math.min(1, maxW / fw);
-      game.style.setProperty("--scale", String(s));
-    }
-    window.addEventListener("resize", applyScale);
-
-    // 버튼 이벤트
-    btnLeft.addEventListener("click", ()=>{ /* 기능 없음(확장용) */ });
-
-    btnFeed.addEventListener("click", ()=>doAction("feed"));
-    btnPet.addEventListener("click",  ()=>doAction("pet"));
-
-    // ✅ D키로 hitbox 시각화 토글
-    window.addEventListener("keydown", (e) => {
-      if (e.key.toLowerCase() === "d") document.body.classList.toggle("debug-hit");
-    });
-
-      if (ENABLE_MOOD) {
-        setInterval(()=>{
-          if(busy) return;
-          mood = clampInt(mood - 2, 0, 100);
-          if(mood <= 25) setState("sad");
-          else if(state === "sad") setState("normal");
-          save();
-          updateUI();
-        }, 15000);
-      }
-
-    // init
-    load();
-    applyScale();
-    setState("normal");
-    updateUI();
-  </script>
-</body>
-</html>
->>>>>>> ea985dc1ae0da7b2a57f2fd28c699ebd8867d13f
