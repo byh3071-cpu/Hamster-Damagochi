@@ -17,7 +17,7 @@
 
       /* === 상단 화면 위치 안정화 === */
       --screen-top-x: 142px;
-      --screen-top-y: 100px;  /* 위쪽 여백 최소화 */
+      --screen-top-y: 90px;  /* 위쪽 여백 최소화 */
       --screen-top-w: 390px;
       --screen-top-h: 280px; 
 
@@ -51,7 +51,8 @@
       height: 100%;
       min-height: 100vh;
       overflow: hidden;
-      background-color: #222;
+      background-color: transparent;
+      background: transparent;
       font-family: 'Press Start 2P', 'Noto Sans KR', sans-serif;
     }
 
@@ -129,13 +130,36 @@
     /* 햄스터 위치 조정 */
     .hamster {
       position: absolute;
-      width: 280px; 
-      height: 280px;
+      width: 290px; 
+      height: 290px;
       left: 50%; 
-      top: 65%; 
+      top: 68%; 
       transform: translate(-50%, -50%);
       image-rendering: pixelated;
       z-index: 20;
+    }
+
+    /* === 상단 패널 위 살짝 여백 (물 급수통 위쪽) 검은색으로 덮음, 프레임 내부만 === */
+    .panel-gap-top {
+      position: absolute;
+      left: var(--panel-x);
+      top: var(--screen-top-y);
+      width: var(--panel-w);
+      height: 14px;
+      background-color: #000;
+      z-index: 10;
+      border-radius: 25px 25px 0 0;
+    }
+
+    /* === 상단·하단 패널 사이 여백 (검은색으로 채움) === */
+    .panel-gap {
+      position: absolute;
+      left: var(--panel-x);
+      top: calc(var(--screen-top-y) + var(--screen-top-h));
+      width: var(--panel-w);
+      height: calc(var(--panel-y) - var(--screen-top-y) - var(--screen-top-h));
+      background-color: #000;
+      z-index: 10;
     }
 
     /* === 레이어 2: 하단 패널 === */
@@ -591,6 +615,8 @@
   <div class="scale-wrapper" id="scaleWrapper">
   <div class="device-container" id="device">
     
+    <div class="panel-gap-top"></div>
+    
     <div class="screen-top">
       <img src="./assets/bg.png" class="bg-image" alt="배경">
       <img src="./assets/normal.png" class="hamster bounce" id="hamster" alt="햄스터">
@@ -601,6 +627,8 @@
       <!-- 그릇 클릭 영역 -->
       <div class="bowl-click-area" onclick="handleBowlClick()" title="클릭: 먹이주기"></div>
     </div>
+
+    <div class="panel-gap"></div>
 
     <div class="screen-bottom">
       <div class="panel-left" ondblclick="showStats()" style="cursor: pointer;" title="더블클릭: 통계">
@@ -866,11 +894,12 @@
       const scaleWrapper = document.getElementById('scaleWrapper');
       const fw = 673, fh = 673;
       const pad = 20;
-      const scale = Math.min(
+      const embedScale = 1.4; /* Notion 링크 임베드 시 크게 보이도록 */
+      let scale = Math.min(
         (window.innerWidth - pad) / fw,
-        (window.innerHeight - pad) / fh,
-        1
+        (window.innerHeight - pad) / fh
       );
+      scale = Math.min(scale * embedScale, 1.8); /* 최대 1.8배까지 확대 */
       scaleWrapper.style.width = (fw * scale) + 'px';
       scaleWrapper.style.height = (fh * scale) + 'px';
       device.style.transform = `scale(${scale})`;
