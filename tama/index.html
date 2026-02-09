@@ -39,12 +39,80 @@
       --exp-bar-fill: #0f380f;  
 
       /* === A, B, C 버튼 위치 === */
-      --btn-size: 56px;
-      --btn-bottom: 68px;
-      --btn-b-bottom: 50px;
-      --btn-a-left: 178px;
-      --btn-b-left: 308px;
-      --btn-c-left: 438px;
+      --btn-size: 65px;
+      --btn-bottom: 61px;
+      --btn-b-bottom: 39px;
+      --btn-a-left: 186px;
+      --btn-b-left: 303px;
+      --btn-c-left: 420px;
+
+      /* === 물방울 위치 조정 === */
+      /* 
+       * 현재 물방울 떨어지는 최적 위치 (물 급수통에 어울리는 위치)
+       * 이 값들은 물 급수통 클릭 영역의 중앙 하단을 기준으로 계산됩니다.
+       * 물 급수통 위치가 변경되면 이 값도 조정이 필요합니다.
+       */
+      --water-drop-offset-x: 0px; /* 물방울 X 위치 오프셋 (양수=오른쪽, 음수=왼쪽) - 조정 필요 */
+      --water-drop-offset-y: 0px; /* 물방울 Y 위치 오프셋 (양수=아래, 음수=위) - 조정 필요 */
+
+      /* === 그루밍 애니메이션 위치 조정 === */
+      /* 
+       * 그루밍 애니메이션이 표시될 고정 위치를 설정합니다.
+       * 기본값은 햄스터 이미지와 동일한 위치(68%, 50%)입니다.
+       * 위치를 변경하려면 아래 값들을 조정하세요.
+       */
+      --grooming-top: 68%; /* 그루밍 애니메이션 상단 위치 (% 또는 px) - 조정 가능 */
+      --grooming-left: 50%; /* 그루밍 애니메이션 좌측 위치 (% 또는 px) - 조정 가능 */
+      --grooming-offset-x: 0px; /* 그루밍 X 위치 미세 조정 (양수=오른쪽, 음수=왼쪽) - 조정 가능 */
+      --grooming-offset-y: -30px; /* 그루밍 Y 위치 미세 조정 (양수=아래, 음수=위) - 조정 가능 */
+      
+      /* === 각 프레임(행)별 Y 위치 개별 조정 === */
+      /* 
+       * 스프라이트 시트 구조 (4x4 그리드, 총 16프레임):
+       * 
+       * [맨 위 줄 - 행 0]  프레임 0  |  프레임 1  |  프레임 2  |  프레임 3
+       * [두 번째 줄 - 행 1]  프레임 4  |  프레임 5  |  프레임 6  |  프레임 7
+       * [세 번째 줄 - 행 2]  프레임 8  |  프레임 9  |  프레임 10 |  프레임 11
+       * [네 번째 줄 - 행 3]  프레임 12 |  프레임 13 |  프레임 14 |  프레임 15
+       * 
+       * 각 행마다 위치가 다를 경우 개별적으로 조정 가능합니다.
+       * 애니메이션을 재생하면서 어떤 줄이 위/아래로 움직이는지 확인하고 조정하세요.
+       */
+      --grooming-row-0-y-offset: -16px; /* 맨 위 줄 (행 0, 프레임 0-3) Y 오프셋 (양수=아래, 음수=위) */
+      --grooming-row-1-y-offset: 9px; /* 두 번째 줄 (행 1, 프레임 4-7) Y 오프셋 (양수=아래, 음수=위) */
+      --grooming-row-2-y-offset: -2px; /* 세 번째 줄 (행 2, 프레임 8-11) Y 오프셋 (양수=아래, 음수=위) */
+      --grooming-row-3-y-offset: 8px; /* 네 번째 줄 (행 3, 프레임 12-15) Y 오프셋 (양수=아래, 음수=위) */
+      
+      /* 각 행별 X 오프셋 (왼쪽/오른쪽 조정) */
+      --grooming-row-0-x-offset: 0px; /* 맨 위 줄 (행 0, 프레임 0-3) X 오프셋 (양수=오른쪽, 음수=왼쪽) */
+      --grooming-row-1-x-offset: 0px; /* 두 번째 줄 (행 1, 프레임 4-7) X 오프셋 (양수=오른쪽, 음수=왼쪽) */
+      --grooming-row-2-x-offset: 0px; /* 세 번째 줄 (행 2, 프레임 8-11) X 오프셋 (양수=오른쪽, 음수=왼쪽) */
+      --grooming-row-3-x-offset: 0px; /* 네 번째 줄 (행 3, 프레임 12-15) X 오프셋 (양수=오른쪽, 음수=왼쪽) */
+      
+      /* === 위쪽 이미지 잘라내기 조정 === */
+      /* 각 행의 오프셋을 조정한 후 위쪽에서 다른 햄스터 이미지가 보이면 이 값을 증가시키세요 */
+      --grooming-clip-top: 28px; /* 위쪽에서 잘라낼 픽셀 수 (값이 클수록 더 많이 잘림) - 조정 가능 */
+      
+      /* === 그루밍 애니메이션 속도 조정 === */
+      /* 프레임당 밀리초 (값이 클수록 느림, 작을수록 빠름) */
+      /* 권장값: 100-150ms (자연스러운 속도), 80ms (빠른 속도), 200ms (느린 속도) */
+      --grooming-animation-speed: 42ms; /* 그루밍 애니메이션 기본 속도 - 조정 가능 */
+      
+      /* === 그루밍 애니메이션 자연스러움 조정 === */
+      /* 프레임 홀드: 특정 프레임을 여러 번 반복하여 더 오래 보여주기 (자연스러운 느낌) */
+      /* 값이 클수록 해당 프레임을 더 오래 보여줌 (예: 2 = 2배 오래, 3 = 3배 오래) */
+      --grooming-frame-hold:3; /* 프레임 홀드 배수 (1 = 기본, 2 = 2배, 3 = 3배) - 조정 가능 */
+      
+      /* === 그루밍 애니메이션 반복 횟수 === */
+      /* 전체 애니메이션을 몇 번 반복할지 설정 (1 = 1번만 재생, 2 = 2번 반복, 3 = 3번 반복) */
+      --grooming-repeat-count: 2; /* 애니메이션 반복 횟수 (1 = 기본, 2 = 2배 시간, 3 = 3배 시간) - 조정 가능 */
+      
+      /* 프레임별 가변 속도: 특정 프레임에만 다른 속도 적용 (0 = 기본 속도 사용, 양수 = 해당 프레임만 이 속도로) */
+      /* 예: --grooming-frame-0-speed: 150ms; (프레임 0만 150ms로 재생) */
+      /* 각 프레임(0-15)별로 개별 속도 설정 가능 (설정하지 않으면 기본 속도 사용) */
+      --grooming-frame-0-speed: 42ms;    /* 시작 프레임을 조금 느리게 */
+      --grooming-frame-8-speed: 42ms;    /* 중간 프레임 속도 */
+      --grooming-frame-15-speed: 42ms;   /* 끝 프레임을 조금 느리게 */
     }
 
     * { box-sizing: border-box; }
@@ -114,10 +182,10 @@
     /* 집 클릭 영역 */
     .house-click-area {
       position: absolute;
-      right: 15px;
-      top: 100px;
-      width: 120px;
-      height: 100px;
+      right: 10px;
+      top: 90px;
+      width: 57px;
+      height: 110px;
       z-index: 15;
       cursor: pointer;
       background: transparent;
@@ -130,21 +198,94 @@
       bottom: 90px;
       width: 60px;
       height: 49px;
-      z-index: 25; /* 햄스터(z-index: 20)보다 높게 설정 */
+      z-index: 25; /* 하루치(z-index: 20)보다 높게 설정 */
       cursor: pointer;
       background: transparent;
     }
 
-    /* 햄스터 위치 조정 */
+    /* 물 급수통 클릭 영역 */
+    /* 
+     * 위치 조정 방법:
+     * - right: 오른쪽에서의 거리 (값이 클수록 왼쪽으로 이동)
+     * - bottom: 아래에서의 거리 (값이 클수록 위로 이동)
+     * - width/height: 클릭 영역 크기
+     * 
+     * bg.png의 물 급수통 위치에 맞춰 조정하세요.
+     * 현재: right: 15px (오른쪽 끝), bottom: 90px (아래에서 90px 위)
+     */
+    .water-bottle-click-area {
+      position: absolute;
+      right: 196px; /* 오른쪽에 배치 (그릇과 집 사이) - 물 급수통 위치에 맞춰 조정 */
+      bottom: 146px; /* 아래에서 90px 위 - 물 급수통 높이에 맞춰 조정 */
+      width: 42px; /* 물 급수통 크기에 맞춰 조정 */
+      height: 118px; /* 물 급수통 크기에 맞춰 조정 */
+      z-index: 25; /* 하루치(z-index: 20)보다 높게 설정 */
+      cursor: pointer;
+      background: transparent;
+    }
+
+    /* 하루치 위치 조정 */
     .hamster {
       position: absolute;
-      width: 290px; 
-      height: 290px;
+      width: 290px; /* 원래 크기 유지 */
+      height: 290px; /* 원래 크기 유지 */
       left: 50%; 
       top: 68%; 
       transform: translate(-50%, -50%);
       image-rendering: pixelated;
       z-index: 20;
+      pointer-events: none; /* 이미지 자체는 클릭 불가 */
+      background-size: 400% 400%; /* 4x4 그리드 (16프레임) */
+      background-repeat: no-repeat;
+      background-position: 0% 0%;
+    }
+
+    /* 그루밍 애니메이션 */
+    .hamster.grooming {
+      /* img 태그의 src 이미지를 완전히 숨김 */
+      opacity: 0 !important; /* normal 이미지 숨김 */
+      visibility: hidden !important; /* 완전히 숨김 */
+      /* 프레임 크기는 원래대로 유지 (290px) */
+      /* 위치 고정 - bounce 애니메이션 제거로 인한 위치 변경 방지 */
+      transform: translate(-50%, -50%) !important;
+    }
+    
+    /* 그루밍 애니메이션용 오버레이 div */
+    .grooming-overlay {
+      position: absolute;
+      top: calc(var(--grooming-top) + var(--grooming-offset-y)); /* CSS 변수로 위치 조정 가능 */
+      left: calc(var(--grooming-left) + var(--grooming-offset-x)); /* CSS 변수로 위치 조정 가능 */
+      transform: translate(-50%, -50%) !important; /* 중앙 정렬, 위치 고정 */
+      width: 120px; /* 그루밍 애니메이션 크기 (노멀 이미지와 동일한 크기) */
+      height: 120px; /* 그루밍 애니메이션 크기 (노멀 이미지와 동일한 크기) */
+      background-image: url('./assets/spr_hamster_shedding.png');
+      /* background-size는 JavaScript에서 동적으로 설정됨 */
+      background-repeat: no-repeat;
+      background-position: 0px 0px; /* JavaScript로 업데이트됨 */
+      image-rendering: pixelated;
+      pointer-events: none;
+      z-index: 21; /* 햄스터 위에 표시 */
+      display: none;
+      overflow: hidden; /* 영역 밖의 이미지 숨김 */
+      /* 위쪽 부분을 잘라내기 위한 clip-path (CSS 변수로 조정 가능) */
+      clip-path: inset(var(--grooming-clip-top) 0 0 0); /* 위쪽에서 잘라내기 (조정 가능) */
+    }
+    
+    .grooming-overlay.active {
+      display: block;
+    }
+
+    /* 하루치 쓰다듬기 클릭 영역 */
+    .hamster-click-area {
+      position: absolute;
+      width: 70px; /* 클릭 영역 크기 (원하는 크기로 조정) */
+      height: 86px; /* 클릭 영역 크기 (원하는 크기로 조정) */
+      left: 50%;
+      top: 67%;
+      transform: translate(-50%, -50%);
+      z-index: 21; /* 햄스터 이미지 위에 */
+      cursor: pointer;
+      background: transparent;
     }
 
     /* === 상단 패널 위 살짝 여백 (검은색 유지 - 기기 내부 디자인) === */
@@ -398,6 +539,7 @@
       z-index: 200;
       cursor: pointer;
       border-radius: 50%;
+      background: transparent;
     }
     .btn-a { left: var(--btn-a-left); }
     .btn-b { left: var(--btn-b-left); bottom: var(--btn-b-bottom); }
@@ -616,6 +758,83 @@
     .stats-close:hover {
       background: #ffffff;
     }
+
+    /* 물 마시는 모습 - 물 급수통 위치로 이동 */
+    /* 
+     * 물 급수통 클릭 영역 위치와 동일하게 맞춰주세요.
+     * .water-bottle-click-area의 right, bottom 값과 동일하게 설정하는 것을 권장합니다.
+     * 이미지 크기는 transform: scale()로 조절됩니다.
+     */
+    .hamster.drinking {
+      right: 62px !important; /* 물 급수통 클릭 영역의 right 값과 동일하게 */
+      bottom: 3px !important; /* 물 급수통 클릭 영역의 bottom 값에서 하루치 높이만큼 조정 */
+      left: auto !important;
+      top: auto !important;
+      transform-origin: center center; /* 확대/축소 기준점 */
+    }
+    
+    /* drink.png 전용 크기 조절 (scale 값으로 조정) */
+    /* scale 값: 1.0 = 100%, 0.7 = 70%, 1.2 = 120% 등 */
+    .hamster.drinking.drink-normal {
+      transform: scale(0.909) !important; /* 70% 크기로 축소 (원하는 크기로 조정) */
+    }
+    
+    /* drinkwater.png 전용 크기 및 위치 조절 */
+    .hamster.drinking.drink-water {
+      transform: scale(0.58) !important; /* 65% 크기로 축소 (원하는 크기로 조정) */
+      /* drinkwater 전용 위치 조정 */
+      right: 36px !important; /* 오른쪽에서의 거리 (값이 클수록 왼쪽으로) */
+      bottom: -10px !important; /* 아래로 내리려면 음수 값 사용 (예: -10px, -20px, -30px) */
+      /* 위로 올리려면 양수 값 사용 (예: 0px, 10px, 20px) */
+    }
+
+    /* 물방울 애니메이션 */
+    .water-drop {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      /* 더 사실적인 물방울 효과 */
+      background: radial-gradient(
+        circle at 30% 30%,
+        rgba(255, 255, 255, 0.8) 0%,
+        rgba(173, 216, 230, 0.9) 20%,
+        rgba(135, 206, 250, 0.8) 50%,
+        rgba(100, 180, 220, 0.7) 100%
+      );
+      border-radius: 50%;
+      /* 하이라이트 효과 (빛 반사) */
+      box-shadow: 
+        inset -2px -2px 4px rgba(255, 255, 255, 0.5),
+        inset 2px 2px 4px rgba(100, 150, 200, 0.3),
+        0 2px 4px rgba(0, 0, 0, 0.2);
+      pointer-events: none;
+      z-index: 30;
+      animation: waterDropFall 1s ease-out forwards;
+    }
+
+    @keyframes waterDropFall {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0px);
+      }
+      30% {
+        opacity: 0.95;
+        transform: translateY(20px) scale(1.1);
+        filter: blur(0.5px);
+      }
+      60% {
+        opacity: 0.85;
+        transform: translateY(40px) scale(0.9);
+        filter: blur(1px);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(70px) scale(0.6);
+        filter: blur(2px);
+      }
+    }
+    
   </style>
 </head>
 <body>
@@ -628,11 +847,15 @@
     
     <div class="screen-top">
       <img src="./assets/bg.png" class="bg-image" alt="배경">
-      <img src="./assets/normal.png" class="hamster bounce" id="hamster" alt="햄스터">
+      <img src="./assets/normal.png" class="hamster bounce" id="hamster" alt="하루치">
+      <div class="grooming-overlay" id="groomingOverlay"></div>
+      <div class="hamster-click-area" onclick="handleHamsterClick()" title="클릭: 쓰다듬기"></div>
       
       <div class="house-click-area" onclick="handleHouseClick()" title="클릭: 잠자기"></div>
       
       <div class="bowl-click-area" onclick="handleBowlClick()" title="클릭: 먹이주기"></div>
+      
+      <div class="water-bottle-click-area" onclick="handleWaterBottleClick()" title="클릭: 물 마시기"></div>
     </div>
 
     <div class="panel-gap"></div>
@@ -662,14 +885,14 @@
         </div>
 
         <div class="title-row" id="titleRow">
-          <span class="hamster-title" id="hamsterTitle">새내기 햄스터</span>
+          <span class="hamster-title" id="hamsterTitle">새내기 하루치</span>
         </div>
       </div>
       <div class="panel-right">
         <div class="log-title">SYSTEM LOG</div>
         <div class="log-content" id="uiLog">
           <div>> 시스템 가동..</div>
-          <div>> 햄스터가 기다려요!</div>
+          <div>> 하루치가 기다려요!</div>
         </div>
       </div>
     </div>
@@ -703,7 +926,16 @@
     const uiLog = document.getElementById('uiLog');
 
     /* [수정] 시작 레벨 1, 경험치 0으로 초기화 */
-    let game = { level: 1, exp: 0, maxExp: 100, isBusy: false };
+    let game = { 
+      level: 1, 
+      exp: 0, 
+      maxExp: 100, 
+      isBusy: false,
+      lastActionTime: Date.now(), // 마지막 액션 시간 추적
+      lastSadTime: 0, // 마지막 sad 표시 시간 (중복 방지)
+      lastAngryTime: 0, // 마지막 angry 표시 시간 (중복 방지)
+      lastGroomingTime: 0 // 마지막 그루밍 표시 시간 (중복 방지)
+    };
 
     /* 통계 데이터 */
     let stats = {
@@ -892,6 +1124,12 @@
       updateUI();
       fitScale();
       window.addEventListener('resize', fitScale);
+      
+      // sad 이미지 랜덤 표시 체크 시작
+      startSadCheckTimer();
+      
+      // 그루밍 애니메이션 체크 시작
+      startGroomingCheckTimer();
     }
 
     function fitScale() {
@@ -911,31 +1149,61 @@
     }
 
     function handleBtn(btn) {
-      if(game.isBusy) return;
-      game.isBusy = true;
+      if(game.isBusy) {
+        // 버튼이 안 눌러질 때 가끔씩 sad/angry 표시 (5% 확률, 70% sad, 30% angry)
+        const lastEmotionTime = Math.max(game.lastSadTime, game.lastAngryTime);
+        if(Math.random() < 0.05 && Date.now() - lastEmotionTime > 10000) {
+          showSadOrAngryRandomly();
+        }
+        return;
+      }
 
       // [주의] 폴더에 eat.png, happy.png 파일이 꼭 있어야 합니다.
       if(btn === 'A') {
-        // A 버튼은 그릇 클릭으로 대체됨 (비활성화)
-        log("그릇을 클릭해주세요!");
-        game.isBusy = false;
+        // A 버튼: 그루밍 애니메이션 실행
+        log("하루치 그루밍 중 ...");
+        game.isBusy = false; // showGroomingAnimation이 자체적으로 busy 관리
+        showGroomingAnimation();
       } else if(btn === 'B') {
-        log("쓰담쓰담.. 기분 최고! +5");
-        changeAction('./assets/happy.png', 2000);
-        showExpParticle(5);
-        addExp(5);
-        updateStats(5);
+        // B 버튼: 비활성화
+        return;
       } else if(btn === 'C') {
-        // C 버튼은 다른 기능으로 사용 가능
-        log("버튼 C");
-        game.isBusy = false; // 버튼이 작동하지 않는 문제 해결
+        // C 버튼: 비활성화
+        return;
       }
+    }
+
+    /* 하루치 클릭 핸들러 (쓰다듬기) */
+    function handleHamsterClick() {
+      if(game.isBusy) {
+        // 버튼이 안 눌러질 때 가끔씩 sad/angry 표시 (5% 확률, 70% sad, 30% angry)
+        const lastEmotionTime = Math.max(game.lastSadTime, game.lastAngryTime);
+        if(Math.random() < 0.05 && Date.now() - lastEmotionTime > 10000) {
+          showSadOrAngryRandomly();
+        }
+        return;
+      }
+      game.isBusy = true;
+      game.lastActionTime = Date.now(); // 액션 시간 업데이트
+      log("쓰담쓰담.. 기분 최고! +5");
+      changeAction('./assets/happy.png', 2000);
+      showExpParticle(5);
+      addExp(5);
+      updateStats(5);
     }
 
     /* 집 클릭 핸들러 */
     function handleHouseClick() {
-      if(game.isBusy) return;
+      if(game.isBusy) {
+        // 버튼이 안 눌러질 때 가끔씩 sad/angry 표시 (5% 확률, 70% sad, 30% angry)
+        const lastEmotionTime = Math.max(game.lastSadTime, game.lastAngryTime);
+        if(Math.random() < 0.05 && Date.now() - lastEmotionTime > 10000) {
+          showSadOrAngryRandomly();
+        }
+        return;
+      }
       game.isBusy = true;
+      game.lastActionTime = Date.now(); // 액션 시간 업데이트
       log("집에 들어가서 잠자기... Zzz +0");
       changeSleepAction(5000); 
       addExp(0);
@@ -943,10 +1211,58 @@
 
     /* 그릇 클릭 핸들러 (A 버튼 기능) */
     function handleBowlClick() {
-      if(game.isBusy) return;
+      if(game.isBusy) {
+        // 버튼이 안 눌러질 때 가끔씩 sad/angry 표시 (5% 확률, 70% sad, 30% angry)
+        const lastEmotionTime = Math.max(game.lastSadTime, game.lastAngryTime);
+        if(Math.random() < 0.05 && Date.now() - lastEmotionTime > 10000) {
+          showSadOrAngryRandomly();
+        }
+        return;
+      }
       game.isBusy = true;
-      log("냠냠! 해바라기씨 맛있다 +10");
+      game.lastActionTime = Date.now(); // 액션 시간 업데이트
+      
+      // 랜덤 해바라기씨 먹기 메시지
+      const eatMessages = [
+        "냠냠! 해바라기씨 맛있다 +10",
+        "냠냠! 해바라기씨 맛있다 야르~ +10",
+        "하루치 두쫀쿠 먹고 싶다 +10",
+        "야미~ 야미~ 야미야미야미 +10"
+      ];
+      
+      const randomMessage = eatMessages[Math.floor(Math.random() * eatMessages.length)];
+      log(randomMessage);
+      
       changeAction('./assets/eat.png', 2000);
+      showExpParticle(10);
+      addExp(10);
+      updateStats(10);
+    }
+
+    /* 물 급수통 클릭 핸들러 */
+    function handleWaterBottleClick() {
+      if(game.isBusy) {
+        // 버튼이 안 눌러질 때 가끔씩 sad/angry 표시 (5% 확률, 70% sad, 30% angry)
+        const lastEmotionTime = Math.max(game.lastSadTime, game.lastAngryTime);
+        if(Math.random() < 0.05 && Date.now() - lastEmotionTime > 10000) {
+          showSadOrAngryRandomly();
+        }
+        return;
+      }
+      game.isBusy = true;
+      game.lastActionTime = Date.now(); // 액션 시간 업데이트
+      
+      // 20% 확률로 drinkwater.png 사용, 80% 확률로 drink.png 사용
+      const useDrinkWater = Math.random() < 0.2;
+      const drinkImage = useDrinkWater ? './assets/drinkwater.png' : './assets/drink.png';
+      
+      // drinkwater일 때와 drink일 때 다른 메시지 표시
+      if(useDrinkWater) {
+        log("벌컥벌컥! 물을 마시는 중... +10");
+      } else {
+        log("물을 마시는 중... +10");
+      }
+      changeDrinkAction(drinkImage, 2000);
       showExpParticle(10);
       addExp(10);
       updateStats(10);
@@ -1003,6 +1319,533 @@
       }, duration);
     }
 
+    /* 물 마시는 모습 (물 급수통 위치로 이동) */
+    function changeDrinkAction(imgSrc, duration) {
+      const originalSrc = './assets/normal.png';
+      
+      // 이미지에 따라 다른 크기 클래스 설정
+      const isDrinkWater = imgSrc.includes('drinkwater');
+      const sizeClass = isDrinkWater ? 'drink-water' : 'drink-normal';
+      
+      // 물 급수통 위치로 이동
+      hamster.src = imgSrc;
+      hamster.classList.remove('bounce', 'sleeping', 'drink-normal', 'drink-water');
+      hamster.classList.add('drinking', sizeClass);
+      
+      // 물방울 애니메이션 시작
+      startWaterDropAnimation(duration);
+      
+      // 이미지 로드 실패 시 원상복구
+      hamster.onerror = function() {
+        console.warn("이미지 로드 실패:", imgSrc);
+        log("⚠ 오류: 물 마시는 이미지가 없어요!");
+        hamster.src = originalSrc;
+        hamster.classList.remove('drinking', 'drink-normal', 'drink-water');
+        hamster.classList.add('bounce');
+        game.isBusy = false;
+      };
+
+      setTimeout(() => {
+        hamster.src = originalSrc;
+        hamster.classList.remove('drinking', 'drink-normal', 'drink-water');
+        hamster.classList.add('bounce');
+        game.isBusy = false;
+        hamster.onerror = null;
+      }, duration);
+    }
+
+    /* 물방울 애니메이션 */
+    function startWaterDropAnimation(duration) {
+      const screenTop = document.querySelector('.screen-top');
+      const waterBottleArea = document.querySelector('.water-bottle-click-area');
+      
+      if (!screenTop || !waterBottleArea) return;
+      
+      // 물 급수통 클릭 영역의 실제 위치 계산
+      const bottleRect = waterBottleArea.getBoundingClientRect();
+      const screenRect = screenTop.getBoundingClientRect();
+      
+      // CSS 변수에서 오프셋 값 가져오기
+      // 현재 최적 위치: X=-115px, Y=-90px (물 급수통에 어울리는 위치)
+      const rootStyles = getComputedStyle(document.documentElement);
+      const offsetX = parseFloat(rootStyles.getPropertyValue('--water-drop-offset-x')) || -135;
+      const offsetY = parseFloat(rootStyles.getPropertyValue('--water-drop-offset-y')) || -108;
+      
+      // 물방울이 떨어지는 시작 위치 (물 급수통 아래쪽 중앙)
+      // 물 급수통 클릭 영역의 중앙 X 위치, 하단 Y 위치
+      const baseX = bottleRect.left + bottleRect.width / 2 - screenRect.left;
+      const baseY = bottleRect.bottom - screenRect.top;
+      
+      // CSS 변수로 설정한 오프셋 적용
+      const startX = baseX + offsetX;
+      const startY = baseY + offsetY;
+      
+      // 물 마시는 동안 여러 개의 물방울 생성
+      const dropCount = 12; // 총 8개의 물방울
+      
+      for (let i = 0; i < dropCount; i++) {
+        setTimeout(() => {
+          createWaterDrop(screenTop, startX, startY);
+        }, i * (duration / dropCount));
+      }
+    }
+
+    /* 물방울 생성 */
+    function createWaterDrop(container, x, y) {
+      const drop = document.createElement('div');
+      drop.className = 'water-drop';
+      
+      // 약간의 랜덤 오프셋 추가
+      const offsetX = (Math.random() - 0.5) * 20;
+      drop.style.left = (x + offsetX) + 'px';
+      drop.style.top = y + 'px';
+      
+      container.appendChild(drop);
+      
+      // 애니메이션 종료 후 제거
+      setTimeout(() => {
+        if (drop.parentNode) {
+          drop.parentNode.removeChild(drop);
+        }
+      }, 1000);
+    }
+
+    /* sad 또는 angry 이미지 랜덤 표시 (70% sad, 30% angry) */
+    function showSadOrAngryRandomly(forceShow = false) {
+      // forceShow가 false이고, 이미 busy 상태이거나 최근에 감정을 표시했다면 건너뛰기
+      const lastEmotionTime = Math.max(game.lastSadTime, game.lastAngryTime);
+      if(!forceShow && (game.isBusy || Date.now() - lastEmotionTime < 10000)) {
+        return;
+      }
+      
+      // 70% sad, 30% angry 랜덤 선택
+      const isAngry = Math.random() < 0.3;
+      
+      if(isAngry) {
+        showAngryRandomly(forceShow);
+      } else {
+        showSadRandomly(forceShow);
+      }
+    }
+
+    /* sad 이미지 랜덤 표시 */
+    function showSadRandomly(forceShow = false) {
+      // forceShow가 false이고, 이미 busy 상태이거나 최근에 sad를 표시했다면 건너뛰기
+      if(!forceShow && (game.isBusy || Date.now() - game.lastSadTime < 10000)) {
+        return;
+      }
+      
+      game.isBusy = true;
+      game.lastSadTime = Date.now();
+      
+      // 랜덤 sad 메시지 배열
+      const sadMessages = [
+        "😢 하루치가 슬퍼 보여요...",
+        "😞 하루치가 외로워하는 것 같아요",
+        "😔 하루치가 기다리고 있어요...",
+        "💔 하루치가 관심을 원해요",
+        "😿 하루치가 쓸쓸해 보여요",
+        "😰 하루치가 불안해하는 것 같아요",
+        "😥 하루치가 심심해하는 것 같아요",
+        "😪 하루치가 지쳐 보여요...",
+        "😓 하루치가 힘들어하는 것 같아요",
+        "😭 하루치가 울고 있어요..."
+      ];
+      
+      // 랜덤으로 메시지 선택
+      const randomMessage = sadMessages[Math.floor(Math.random() * sadMessages.length)];
+      log(randomMessage);
+      
+      const originalSrc = './assets/normal.png';
+      hamster.src = './assets/sad.png';
+      hamster.classList.remove('bounce', 'sleeping', 'drinking');
+      
+      // 이미지 로드 실패 시 원상복구
+      hamster.onerror = function() {
+        console.warn("이미지 로드 실패: sad.png");
+        log("⚠ 오류: sad 이미지가 없어요!");
+        hamster.src = originalSrc;
+        hamster.classList.add('bounce');
+        game.isBusy = false;
+        hamster.onerror = null;
+      };
+      
+      // 2-4초 사이 랜덤하게 표시
+      const duration = 2000 + Math.random() * 2000;
+      
+      setTimeout(() => {
+        hamster.src = originalSrc;
+        hamster.classList.add('bounce');
+        game.isBusy = false;
+        hamster.onerror = null;
+      }, duration);
+    }
+
+    /* angry 이미지 랜덤 표시 */
+    function showAngryRandomly(forceShow = false) {
+      // forceShow가 false이고, 이미 busy 상태이거나 최근에 angry를 표시했다면 건너뛰기
+      if(!forceShow && (game.isBusy || Date.now() - game.lastAngryTime < 10000)) {
+        return;
+      }
+      
+      game.isBusy = true;
+      game.lastAngryTime = Date.now();
+      
+      // 랜덤 angry 메시지 배열
+      const angryMessages = [
+        "😠 하루치가 화가 났어요!",
+        "😡 하루치가 매우 화가 나있어요!",
+        "💢 하루치가 짜증이 났어요!",
+        "🤬 하루치가 화가 나서 떠들어요!",
+        "😤 하루치가 불만이 많아요!",
+        "💥 하루치가 폭발 직전이에요!"
+      ];
+      
+      // 랜덤으로 메시지 선택
+      const randomMessage = angryMessages[Math.floor(Math.random() * angryMessages.length)];
+      log(randomMessage);
+      
+      const originalSrc = './assets/normal.png';
+      hamster.src = './assets/angry.png';
+      hamster.classList.remove('bounce', 'sleeping', 'drinking');
+      
+      // 이미지 로드 실패 시 원상복구
+      hamster.onerror = function() {
+        console.warn("이미지 로드 실패: angry.png");
+        log("⚠ 오류: angry 이미지가 없어요!");
+        hamster.src = originalSrc;
+        hamster.classList.add('bounce');
+        game.isBusy = false;
+        hamster.onerror = null;
+      };
+      
+      // 3-5초 사이 랜덤하게 표시 (sad보다 조금 더 길게)
+      const duration = 3000 + Math.random() * 2000;
+      
+      setTimeout(() => {
+        hamster.src = originalSrc;
+        hamster.classList.add('bounce');
+        game.isBusy = false;
+        hamster.onerror = null;
+      }, duration);
+    }
+
+    /* 장시간 대기 시 sad/angry 체크 타이머 */
+    function startSadCheckTimer() {
+      // 30초마다 체크
+      setInterval(() => {
+        if(!game.isBusy) {
+          const idleTime = Date.now() - game.lastActionTime;
+          const lastEmotionTime = Math.max(game.lastSadTime, game.lastAngryTime);
+          
+          // 5분(300초) 이상 방치 시 angry 1% 확률
+          if(idleTime >= 300000) {
+            if(Math.random() < 0.01 && Date.now() - lastEmotionTime > 60000) {
+              showAngryRandomly();
+              return;
+            }
+          }
+          
+          // 2분(120초) 이상 대기 중일 때 sad/angry 랜덤 (70% sad, 30% angry)
+          if(idleTime >= 120000) {
+            // 3% 확률로 감정 표시 (가끔씩만)
+            if(Math.random() < 0.03 && Date.now() - lastEmotionTime > 30000) {
+              showSadOrAngryRandomly();
+            }
+          }
+        }
+      }, 30000); // 30초마다 체크
+    }
+
+    /* 그루밍 애니메이션 변수 */
+    let groomingAnimationInterval = null;
+    let currentGroomingFrame = 0;
+    const GROOMING_FRAME_COUNT = 16; // 총 16프레임
+    const GROOMING_FRAME_WIDTH = 64; // 원본 1프레임 너비 (256px / 4)
+    const GROOMING_FRAME_HEIGHT = 64; // 원본 1프레임 높이 (256px / 4)
+    const DISPLAY_FRAME_WIDTH = 200; // 그루밍 애니메이션 표시 크기 (오버레이 크기에 맞춤)
+    const DISPLAY_FRAME_HEIGHT = 200; // 그루밍 애니메이션 표시 크기 (오버레이 크기에 맞춤)
+    
+    /* 그루밍 애니메이션 속도 (CSS 변수에서 읽어옴, 기본값 120ms) */
+    function getGroomingAnimationSpeed(frameIndex = null) {
+      const rootStyles = getComputedStyle(document.documentElement);
+      
+      // 프레임별 개별 속도가 설정되어 있는지 확인
+      if(frameIndex !== null) {
+        const frameSpeed = rootStyles.getPropertyValue(`--grooming-frame-${frameIndex}-speed`);
+        if(frameSpeed && frameSpeed.trim() !== '') {
+          const speed = parseFloat(frameSpeed.replace('ms', '').trim());
+          if(speed > 0) return speed;
+        }
+      }
+      
+      // 기본 속도 사용
+      const speedValue = rootStyles.getPropertyValue('--grooming-animation-speed') || '120ms';
+      const speed = parseFloat(speedValue.replace('ms', '')) || 120;
+      return speed;
+    }
+    
+    /* 프레임 홀드 배수 가져오기 */
+    function getGroomingFrameHold() {
+      const rootStyles = getComputedStyle(document.documentElement);
+      const holdValue = rootStyles.getPropertyValue('--grooming-frame-hold') || '1';
+      return parseFloat(holdValue) || 1;
+    }
+    
+    /* 애니메이션 반복 횟수 가져오기 */
+    function getGroomingRepeatCount() {
+      const rootStyles = getComputedStyle(document.documentElement);
+      const repeatValue = rootStyles.getPropertyValue('--grooming-repeat-count') || '1';
+      return parseFloat(repeatValue) || 1;
+    }
+
+    /* 그루밍 애니메이션 프레임 업데이트 */
+    function updateGroomingFrame() {
+      const groomingOverlay = document.getElementById('groomingOverlay');
+      if(!groomingOverlay) return;
+      
+      // 현재 프레임 인덱스로 열(col)과 행(row) 계산
+      const col = currentGroomingFrame % 4; // 0~3
+      const row = Math.floor(currentGroomingFrame / 4); // 0~3
+      
+      // 오버레이 크기 가져오기 (동적으로 계산)
+      const frameWidth = window.currentDisplayFrameWidth || DISPLAY_FRAME_WIDTH;
+      const frameHeight = window.currentDisplayFrameHeight || DISPLAY_FRAME_HEIGHT;
+      
+      // 각 행(row)별 X, Y 오프셋을 CSS 변수에서 가져오기
+      const rootStyles = getComputedStyle(document.documentElement);
+      const rowYOffsets = [
+        parseFloat(rootStyles.getPropertyValue('--grooming-row-0-y-offset')) || 0,
+        parseFloat(rootStyles.getPropertyValue('--grooming-row-1-y-offset')) || 0,
+        parseFloat(rootStyles.getPropertyValue('--grooming-row-2-y-offset')) || 0,
+        parseFloat(rootStyles.getPropertyValue('--grooming-row-3-y-offset')) || 0
+      ];
+      const rowXOffsets = [
+        parseFloat(rootStyles.getPropertyValue('--grooming-row-0-x-offset')) || 0,
+        parseFloat(rootStyles.getPropertyValue('--grooming-row-1-x-offset')) || 0,
+        parseFloat(rootStyles.getPropertyValue('--grooming-row-2-x-offset')) || 0,
+        parseFloat(rootStyles.getPropertyValue('--grooming-row-3-x-offset')) || 0
+      ];
+      
+      // background-position을 음수 픽셀 값으로 계산 (X 오프셋 적용)
+      const baseX = -col * frameWidth;
+      const rowXOffset = rowXOffsets[row] || 0;
+      const x = baseX + rowXOffset;
+      
+      // y 위치 계산: 기본 위치 + 행별 오프셋
+      const baseY = -row * frameHeight;
+      const rowYOffset = rowYOffsets[row] || 0;
+      const y = baseY + rowYOffset;
+      
+      // background-position 업데이트 (오버레이 div에 적용)
+      groomingOverlay.style.backgroundPosition = `${x}px ${y}px`;
+      
+      // 다음 프레임으로 이동
+      currentGroomingFrame++;
+    }
+
+    /* 그루밍 프레임 자동 정렬 - 모든 프레임이 같은 위치에 오도록 자동 조정 */
+    function autoAlignGroomingFrames() {
+      const groomingOverlay = document.getElementById('groomingOverlay');
+      if(!groomingOverlay) {
+        log("⚠ 그루밍 오버레이를 찾을 수 없습니다.");
+        return;
+      }
+      
+      // 오버레이 크기 가져오기
+      const overlayWidth = parseInt(window.getComputedStyle(groomingOverlay).width) || 290;
+      const overlayHeight = parseInt(window.getComputedStyle(groomingOverlay).height) || 290;
+      
+      // 기준 프레임(프레임 0)의 위치를 기준으로 설정
+      const referenceFrame = 0;
+      const referenceRow = Math.floor(referenceFrame / 4);
+      const referenceCol = referenceFrame % 4;
+      
+      // 기준 프레임의 기본 Y 위치 (오프셋 없이)
+      const referenceBaseY = -referenceRow * overlayHeight;
+      // 기준 프레임의 기본 X 위치 (오프셋 없이, 컬럼 0 기준)
+      const referenceBaseX = -referenceCol * overlayWidth;
+      
+      // 각 행의 오프셋을 계산하여 모든 프레임이 같은 Y, X 위치에 오도록 조정
+      const rowYOffsets = [];
+      const rowXOffsets = [];
+      
+      for(let row = 0; row < 4; row++) {
+        // 각 행의 기본 Y 위치
+        const baseY = -row * overlayHeight;
+        
+        // 기준 프레임과 같은 Y 위치에 오도록 필요한 오프셋 계산
+        const neededYOffset = referenceBaseY - baseY;
+        rowYOffsets[row] = neededYOffset;
+        
+        // 각 행의 첫 번째 프레임(컬럼 0)의 기본 X 위치
+        const baseX = -0 * overlayWidth; // 항상 0이지만 명시적으로 표시
+        
+        // 기준 프레임과 같은 X 위치에 오도록 필요한 오프셋 계산
+        const neededXOffset = referenceBaseX - baseX;
+        rowXOffsets[row] = neededXOffset;
+      }
+      
+      // CSS 변수에 적용
+      for(let i = 0; i < 4; i++) {
+        document.documentElement.style.setProperty(`--grooming-row-${i}-y-offset`, `${rowYOffsets[i]}px`);
+        document.documentElement.style.setProperty(`--grooming-row-${i}-x-offset`, `${rowXOffsets[i]}px`);
+      }
+      
+      // 애니메이션이 실행 중이면 즉시 업데이트
+      if(groomingAnimationInterval) {
+        updateGroomingFrame();
+      }
+    }
+    
+    /* 그루밍 애니메이션 표시 */
+    function showGroomingAnimation() {
+      // 이미 busy 상태이거나 최근에 그루밍을 표시했다면 건너뛰기
+      if(game.isBusy || Date.now() - game.lastGroomingTime < 20000) {
+        return;
+      }
+      
+      // 기존 애니메이션이 실행 중이면 정리
+      if(groomingAnimationInterval) {
+        clearInterval(groomingAnimationInterval);
+        groomingAnimationInterval = null;
+      }
+      
+      game.isBusy = true;
+      game.lastGroomingTime = Date.now();
+      
+      // img 태그를 숨기고 오버레이 div 표시
+      hamster.classList.remove('bounce', 'sleeping', 'drinking');
+      hamster.classList.add('grooming');
+      
+      // normal 이미지 완전히 숨기기
+      hamster.style.opacity = '0';
+      hamster.style.visibility = 'hidden';
+      
+      const groomingOverlay = document.getElementById('groomingOverlay');
+      if(groomingOverlay) {
+        // 오버레이 크기 가져오기
+        const overlayWidth = parseInt(window.getComputedStyle(groomingOverlay).width);
+        const overlayHeight = parseInt(window.getComputedStyle(groomingOverlay).height);
+        
+        // background-size를 오버레이 크기에 맞춰 동적으로 설정 (4x4 그리드)
+        groomingOverlay.style.backgroundSize = `${overlayWidth * 4}px ${overlayHeight * 4}px`;
+        
+        // overflow: hidden으로 영역 밖의 이미지 숨김
+        groomingOverlay.style.overflow = 'hidden';
+        
+        // 위치 고정 (CSS 변수 사용)
+        const rootStyles = getComputedStyle(document.documentElement);
+        const groomingTop = rootStyles.getPropertyValue('--grooming-top') || '68%';
+        const groomingLeft = rootStyles.getPropertyValue('--grooming-left') || '50%';
+        const groomingOffsetX = rootStyles.getPropertyValue('--grooming-offset-x') || '0px';
+        const groomingOffsetY = rootStyles.getPropertyValue('--grooming-offset-y') || '0px';
+        
+        groomingOverlay.style.top = `calc(${groomingTop} + ${groomingOffsetY})`;
+        groomingOverlay.style.left = `calc(${groomingLeft} + ${groomingOffsetX})`;
+        groomingOverlay.style.transform = 'translate(-50%, -50%)';
+        
+        groomingOverlay.classList.add('active');
+        
+        // DISPLAY_FRAME_WIDTH/HEIGHT를 오버레이 크기에 맞춰 업데이트
+        window.currentDisplayFrameWidth = overlayWidth;
+        window.currentDisplayFrameHeight = overlayHeight;
+      }
+      
+      // 자동 정렬 실행 (위/아래, 왼쪽/오른쪽 모두 정렬)
+      autoAlignGroomingFrames();
+      
+      // 프레임 인덱스 초기화
+      currentGroomingFrame = 0;
+      
+      // 첫 프레임 설정
+      updateGroomingFrame();
+      
+      // 프레임 홀드 배수 가져오기
+      const frameHold = getGroomingFrameHold();
+      // 반복 횟수 가져오기
+      const repeatCount = getGroomingRepeatCount();
+      let holdCount = 0;
+      let animationCycle = 0; // 애니메이션 사이클 카운터
+      
+      // 애니메이션 프레임 진행 함수
+      function advanceFrame() {
+        holdCount++;
+        
+        // 프레임 홀드만큼 반복했으면 다음 프레임으로
+        if(holdCount >= frameHold) {
+          holdCount = 0;
+          updateGroomingFrame();
+          
+          // 모든 프레임이 재생되었으면
+          if(currentGroomingFrame >= GROOMING_FRAME_COUNT) {
+            animationCycle++;
+            
+            // 지정된 횟수만큼 반복하지 않았으면 다시 시작
+            if(animationCycle < repeatCount) {
+              currentGroomingFrame = 0;
+              updateGroomingFrame();
+              return;
+            }
+            
+            // 모든 반복이 끝났으면 종료
+            if(groomingAnimationInterval) {
+              clearInterval(groomingAnimationInterval);
+              groomingAnimationInterval = null;
+            }
+            
+            // 원상복구
+            hamster.classList.remove('grooming');
+            hamster.classList.add('bounce');
+            hamster.style.opacity = '';
+            hamster.style.visibility = '';
+            hamster.style.backgroundImage = '';
+            hamster.style.backgroundSize = '';
+            hamster.style.backgroundPosition = '';
+            hamster.style.backgroundRepeat = '';
+            
+            if(groomingOverlay) {
+              groomingOverlay.classList.remove('active');
+            }
+            
+            currentGroomingFrame = 0;
+            game.isBusy = false;
+            return;
+          }
+        }
+        
+        // 현재 프레임의 속도로 다음 인터벌 설정 (프레임별 가변 속도 적용)
+        const currentSpeed = getGroomingAnimationSpeed(currentGroomingFrame);
+        if(groomingAnimationInterval) {
+          clearInterval(groomingAnimationInterval);
+          groomingAnimationInterval = setInterval(advanceFrame, currentSpeed);
+        }
+      }
+      
+      // setInterval로 애니메이션 시작 (프레임별 가변 속도 적용)
+      groomingAnimationInterval = setInterval(advanceFrame, getGroomingAnimationSpeed(currentGroomingFrame));
+    }
+
+    /* 그루밍 애니메이션 체크 타이머 */
+    function startGroomingCheckTimer() {
+      // 20초마다 체크
+      setInterval(() => {
+        // busy 상태가 아니고, normal 상태일 때만
+        if(!game.isBusy && !hamster.classList.contains('sleeping') && 
+           !hamster.classList.contains('drinking') && 
+           !hamster.classList.contains('grooming')) {
+          
+          // 30초 이상 대기 중일 때 5% 확률로 그루밍
+          const idleTime = Date.now() - game.lastActionTime;
+          if(idleTime >= 30000) {
+            if(Math.random() < 0.05 && Date.now() - game.lastGroomingTime > 20000) {
+              showGroomingAnimation();
+            }
+          }
+        }
+      }, 20000); // 20초마다 체크
+    }
+
     function addExp(amount) {
       game.exp += amount;
       if(game.exp >= game.maxExp) {
@@ -1016,10 +1859,10 @@
 
     /* EXP 파티클 효과 */
     function showExpParticle(amount) {
-      // 햄스터 머리 위 위치 계산 (액션과 직접 연결)
+      // 하루치 머리 위 위치 계산 (액션과 직접 연결)
       const hamsterRect = hamster.getBoundingClientRect();
       const centerX = hamsterRect.left + hamsterRect.width / 2;
-      const headY = hamsterRect.top + 50; // 햄스터 머리 더 아래쪽
+      const headY = hamsterRect.top + 50; // 하루치 머리 더 아래쪽
       
       const particle = document.createElement('div');
       particle.className = 'exp-particle';
@@ -1040,7 +1883,7 @@
       document.body.appendChild(flash);
       setTimeout(() => flash.remove(), 600);
 
-      // 햄스터 반짝임 효과 (부드럽게)
+      // 하루치 반짝임 효과 (부드럽게)
       hamster.classList.add('levelup');
       setTimeout(() => {
         hamster.classList.remove('levelup');
@@ -1175,7 +2018,7 @@
 
     /* 목표 달성 효과 */
     function showGoalAchievedEffect() {
-      // 햄스터에 특별 효과
+      // 하루치에 특별 효과
       hamster.classList.add('levelup');
       setTimeout(() => {
         hamster.classList.remove('levelup');
@@ -1240,12 +2083,12 @@
       if(level >= 25) return "📊 성장 기록가";
       if(level >= 20) return "✨ 성장하는 리더";
       if(level >= 17) return "🏃 꾸준함의 증명자";
-      if(level >= 15) return "💪 노력하는 햄스터";
+      if(level >= 15) return "💪 노력하는 하루치";
       if(level >= 12) return "📝 습관 만들기 중";
-      if(level >= 10) return "📈 성장 중인 햄스터";
+      if(level >= 10) return "📈 성장 중인 하루치";
       if(level >= 7) return "🌿 조금씩 자라는 중";
-      if(level >= 5) return "🌱 새싹 햄스터";
-      return "🐹 새내기 햄스터";
+      if(level >= 5) return "🌱 새싹 하루치";
+      return "🐹 새내기 하루치";
     }
 
     function updateUI() {
