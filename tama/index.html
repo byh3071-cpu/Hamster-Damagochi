@@ -113,6 +113,20 @@
       --grooming-frame-0-speed: 42ms;    /* 시작 프레임을 조금 느리게 */
       --grooming-frame-8-speed: 42ms;    /* 중간 프레임 속도 */
       --grooming-frame-15-speed: 42ms;   /* 끝 프레임을 조금 느리게 */
+
+      /* === back.png (화난/삐진 모습) 위치·크기 조정 === */
+      --back-left: 54%;           /* 기본 위치 (% 또는 px) - 조정 가능 */
+      --back-top: 68%;            /* 기본 위치 (% 또는 px) - 조정 가능 */
+      --back-width: 245px;        /* back.png 크기 - 조정 가능 */
+      --back-height: 245px;       /* back.png 크기 - 조정 가능 */
+      --back-offset-x: 0px;       /* X 미세 조정 (양수=오른쪽, 음수=왼쪽) */
+      --back-offset-y: 0px;       /* Y 미세 조정 (양수=아래, 음수=위) */
+
+      /* === 화난 말풍선 위치 조정 === */
+      --angry-bubble-right: 62px; /* 오른쪽에서의 거리 (값이 클수록 왼쪽으로) */
+      --angry-bubble-top: 56%;    /* 세로 위치 (% 또는 px) */
+      --angry-bubble-offset-x: 0px; /* X 미세 조정 (양수=오른쪽, 음수=왼쪽) */
+      --angry-bubble-offset-y: 0px; /* Y 미세 조정 (양수=아래, 음수=위) */
     }
 
     * { box-sizing: border-box; }
@@ -238,6 +252,15 @@
       background-size: 400% 400%; /* 4x4 그리드 (16프레임) */
       background-repeat: no-repeat;
       background-position: 0% 0%;
+    }
+
+    /* back.png (화난/삐진 모습) 전용 위치·크기 */
+    .hamster.angry {
+      left: calc(var(--back-left) + var(--back-offset-x)) !important;
+      top: calc(var(--back-top) + var(--back-offset-y)) !important;
+      width: var(--back-width) !important;
+      height: var(--back-height) !important;
+      transform: translate(-50%, -50%) !important;
     }
 
     /* 그루밍 애니메이션 */
@@ -530,6 +553,173 @@
     .log-item.important { color: #2d3d1f; font-weight: bold; animation: flash 0.5s; } /* 중요 메시지 */
     @keyframes flash { 0% { opacity: 0; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
+    /* 화난 말풍선 (오른쪽, 빠직 표현) - 위치는 CSS 변수로 조정 가능 */
+    .angry-speech-bubble {
+      position: absolute;
+      right: calc(var(--angry-bubble-right) + var(--angry-bubble-offset-x));
+      top: calc(var(--angry-bubble-top) + var(--angry-bubble-offset-y));
+      transform: translateY(-50%);
+      background: #fff;
+      border: 3px solid #0f380f;
+      border-radius: 12px;
+      padding: 8px 14px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #0f380f;
+      z-index: 22;
+      box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+      display: none;
+      animation: angryBubblePop 0.3s ease-out;
+      white-space: nowrap;
+    }
+    .angry-speech-bubble::after {
+      content: '';
+      position: absolute;
+      left: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 8px solid transparent;
+      border-right-color: #fff;
+      border-left: none;
+    }
+    .angry-speech-bubble::before {
+      content: '';
+      position: absolute;
+      left: -15px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 9px solid transparent;
+      border-right-color: #0f380f;
+      border-left: none;
+    }
+    .angry-speech-bubble.show {
+      display: block;
+    }
+    @keyframes angryBubblePop {
+      0% { transform: translateY(-50%) scale(0.5); opacity: 0; }
+      70% { transform: translateY(-50%) scale(1.1); opacity: 1; }
+      100% { transform: translateY(-50%) scale(1); opacity: 1; }
+    }
+
+    /* 물 마시는 말풍선 (챱챱챱 / 할짝할짝) */
+    .drink-speech-bubble {
+      position: absolute;
+      left: 53%;
+      top: 28%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      border: 3px solid #0f380f;
+      border-radius: 12px;
+      padding: 8px 14px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #0f380f;
+      z-index: 22;
+      box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+      display: none;
+      animation: drinkBubblePop 0.3s ease-out;
+      white-space: nowrap;
+    }
+    .drink-speech-bubble::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: -12px;
+      transform: translateX(-50%);
+      border: 8px solid transparent;
+      border-top-color: #fff;
+      border-bottom: none;
+    }
+    .drink-speech-bubble::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: -15px;
+      transform: translateX(-50%);
+      border: 9px solid transparent;
+      border-top-color: #0f380f;
+      border-bottom: none;
+    }
+    .drink-speech-bubble.show {
+      display: block;
+    }
+    @keyframes drinkBubblePop {
+      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+      70% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+
+    /* 뒤태 말풍선 (씰룩씰룩 / 토실토실) - 오른쪽 배치 */
+    .butt-speech-bubble {
+      position: absolute;
+      right: calc(var(--angry-bubble-right) + var(--angry-bubble-offset-x));
+      top: calc(var(--angry-bubble-top) + var(--angry-bubble-offset-y));
+      transform: translateY(-50%);
+      background: #fff;
+      border: 3px solid #0f380f;
+      border-radius: 12px;
+      padding: 8px 14px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #0f380f;
+      z-index: 22;
+      box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+      display: none;
+      animation: buttBubblePop 0.3s ease-out;
+      white-space: nowrap;
+    }
+    .butt-speech-bubble::after {
+      content: '';
+      position: absolute;
+      left: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 8px solid transparent;
+      border-right-color: #fff;
+      border-left: none;
+    }
+    .butt-speech-bubble::before {
+      content: '';
+      position: absolute;
+      left: -15px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 9px solid transparent;
+      border-right-color: #0f380f;
+      border-left: none;
+    }
+    .butt-speech-bubble.show {
+      display: block;
+    }
+    @keyframes buttBubblePop {
+      0% { transform: translateY(-50%) scale(0.5); opacity: 0; }
+      70% { transform: translateY(-50%) scale(1.1); opacity: 1; }
+      100% { transform: translateY(-50%) scale(1); opacity: 1; }
+    }
+
+    /* back.png 뒤태 모드 - 씰룩씰룩일 때 엉덩이 흔들림 애니메이션 */
+    .hamster.butt {
+      left: calc(var(--back-left) + var(--back-offset-x)) !important;
+      top: calc(var(--back-top) + var(--back-offset-y)) !important;
+      width: var(--back-width) !important;
+      height: var(--back-height) !important;
+      transform-origin: center 75%; /* 하단 쪽 기준점 (엉덩이 쪽) */
+    }
+    .hamster.butt:not(.butt-wiggle) {
+      transform: translate(-50%, -50%) !important;
+    }
+    .hamster.butt.butt-wiggle {
+      animation: buttWiggle 0.42s cubic-bezier(0.22, 1.5, 0.45, 1) infinite;
+    }
+    /* 빵빵 흔들흔들 찰진 빵댕이 - 빠르고 경쾌하게 */
+    @keyframes buttWiggle {
+      0%, 100% { transform: translate(-50%, -50%) rotate(0deg) scale(1, 1); }
+      20% { transform: translate(-50%, -50%) rotate(7deg) scale(1.06, 0.92); }
+      40% { transform: translate(-50%, -50%) rotate(-6deg) scale(0.93, 1.08); }
+      60% { transform: translate(-50%, -50%) rotate(5deg) scale(1.05, 0.94); }
+      80% { transform: translate(-50%, -50%) rotate(-4deg) scale(0.95, 1.05); }
+    }
+
     /* 버튼 영역 */
     .btn-area {
       position: absolute;
@@ -766,7 +956,7 @@
      * 이미지 크기는 transform: scale()로 조절됩니다.
      */
     .hamster.drinking {
-      right: 62px !important; /* 물 급수통 클릭 영역의 right 값과 동일하게 */
+      right: 61px !important; /* 물 급수통 위치 (소수점 px로 미세 조정 가능, 값↑=왼쪽) */
       bottom: 3px !important; /* 물 급수통 클릭 영역의 bottom 값에서 하루치 높이만큼 조정 */
       left: auto !important;
       top: auto !important;
@@ -856,6 +1046,10 @@
       <div class="bowl-click-area" onclick="handleBowlClick()" title="클릭: 먹이주기"></div>
       
       <div class="water-bottle-click-area" onclick="handleWaterBottleClick()" title="클릭: 물 마시기"></div>
+      
+      <div class="angry-speech-bubble" id="angrySpeechBubble">빠직!</div>
+      <div class="drink-speech-bubble" id="drinkSpeechBubble">챱챱챱...</div>
+      <div class="butt-speech-bubble" id="buttSpeechBubble">토실토실</div>
     </div>
 
     <div class="panel-gap"></div>
@@ -902,8 +1096,8 @@
     </div>
 
     <div class="btn-area btn-a" onclick="handleBtn('A')" title="밥주기"></div>
-    <div class="btn-area btn-b" onclick="handleBtn('B')" title="쓰다듬기"></div>
-    <div class="btn-area btn-c" onclick="handleBtn('C')" title="잠자기"></div>
+    <div class="btn-area btn-b" onclick="handleBtn('B')" title="엉덩이 흔들기"></div>
+    <div class="btn-area btn-c" onclick="handleBtn('C')" title="화난 모습"></div>
 
     <div class="stats-modal" id="statsModal">
       <div class="stats-panel">
@@ -1168,11 +1362,11 @@
         showGroomingAnimation();
         // showGroomingAnimation이 busy를 관리하므로 여기서는 복원하지 않음
       } else if(btn === 'B') {
-        // B 버튼: 비활성화
-        return;
+        // B 버튼: 엉덩이 흔들기 (씰룩씰룩 / 토실토실)
+        showButtAction();
       } else if(btn === 'C') {
-        // C 버튼: 비활성화
-        return;
+        // C 버튼: 화난 모습 (angry.png)
+        showAngryFaceAction();
       }
     }
 
@@ -1335,6 +1529,14 @@
       hamster.classList.remove('bounce', 'sleeping', 'drink-normal', 'drink-water');
       hamster.classList.add('drinking', sizeClass);
       
+      // 물 마시는 말풍선 표시 (챱챱챱... / 할짝할짝 랜덤)
+      const drinkBubble = document.getElementById('drinkSpeechBubble');
+      const drinkBubbleTexts = ['챱챱챱...', '할짝할짝'];
+      if(drinkBubble) {
+        drinkBubble.textContent = drinkBubbleTexts[Math.floor(Math.random() * drinkBubbleTexts.length)];
+        drinkBubble.classList.add('show');
+      }
+      
       // 물방울 애니메이션 시작
       startWaterDropAnimation(duration);
       
@@ -1345,6 +1547,8 @@
         hamster.src = originalSrc;
         hamster.classList.remove('drinking', 'drink-normal', 'drink-water');
         hamster.classList.add('bounce');
+        const drinkBubble = document.getElementById('drinkSpeechBubble');
+        if(drinkBubble) drinkBubble.classList.remove('show');
         game.isBusy = false;
       };
 
@@ -1352,6 +1556,8 @@
         hamster.src = originalSrc;
         hamster.classList.remove('drinking', 'drink-normal', 'drink-water');
         hamster.classList.add('bounce');
+        const drinkBubble = document.getElementById('drinkSpeechBubble');
+        if(drinkBubble) drinkBubble.classList.remove('show');
         game.isBusy = false;
         hamster.onerror = null;
       }, duration);
@@ -1484,7 +1690,7 @@
       }, duration);
     }
 
-    /* angry 이미지 랜덤 표시 */
+    /* angry 이미지 랜덤 표시 (back.png - 삐져서 뒤돌아 선 모습 + 오른쪽 말풍선 빠직) */
     function showAngryRandomly(forceShow = false) {
       // forceShow가 false이고, 이미 busy 상태이거나 최근에 angry를 표시했다면 건너뛰기
       if(!forceShow && (game.isBusy || Date.now() - game.lastAngryTime < 10000)) {
@@ -1509,15 +1715,26 @@
       log(randomMessage);
       
       const originalSrc = './assets/normal.png';
-      hamster.src = './assets/angry.png';
+      hamster.src = './assets/back.png';
       hamster.classList.remove('bounce', 'sleeping', 'drinking');
+      hamster.classList.add('angry');
+      
+      // 오른쪽 말풍선 빠직 표시
+      const speechBubble = document.getElementById('angrySpeechBubble');
+      const angryBubbleTexts = ['빠직!', '찍찍!', '찍!!', '...'];
+      if(speechBubble) {
+        speechBubble.textContent = angryBubbleTexts[Math.floor(Math.random() * angryBubbleTexts.length)];
+        speechBubble.classList.add('show');
+      }
       
       // 이미지 로드 실패 시 원상복구
       hamster.onerror = function() {
-        console.warn("이미지 로드 실패: angry.png");
-        log("⚠ 오류: angry 이미지가 없어요!");
+        console.warn("이미지 로드 실패: back.png");
+        log("⚠ 오류: back 이미지가 없어요!");
         hamster.src = originalSrc;
         hamster.classList.add('bounce');
+        hamster.classList.remove('angry');
+        if(speechBubble) speechBubble.classList.remove('show');
         game.isBusy = false;
         hamster.onerror = null;
       };
@@ -1528,6 +1745,95 @@
       setTimeout(() => {
         hamster.src = originalSrc;
         hamster.classList.add('bounce');
+        hamster.classList.remove('angry');
+        if(speechBubble) speechBubble.classList.remove('show');
+        game.isBusy = false;
+        hamster.onerror = null;
+      }, duration);
+    }
+
+    /* C 버튼: 화난 모습 (angry.png - 정면 화난 표정) */
+    function showAngryFaceAction() {
+      if(game.isBusy) return;
+      
+      game.isBusy = true;
+      
+      const angryMessages = [
+        "😠 하루치가 화가 났어요!",
+        "😡 하루치가 매우 화가 나있어요!",
+        "💢 하루치가 짜증이 났어요!"
+      ];
+      log(angryMessages[Math.floor(Math.random() * angryMessages.length)]);
+      
+      const originalSrc = './assets/normal.png';
+      hamster.src = './assets/angry.png';
+      hamster.classList.remove('bounce', 'sleeping', 'drinking');
+      
+      const speechBubble = document.getElementById('angrySpeechBubble');
+      const angryBubbleTexts = ['빠직!', '빠직!!', '빠악!', '쳇!'];
+      if(speechBubble) {
+        speechBubble.textContent = angryBubbleTexts[Math.floor(Math.random() * angryBubbleTexts.length)];
+        speechBubble.classList.add('show');
+      }
+      
+      hamster.onerror = function() {
+        console.warn("이미지 로드 실패: angry.png");
+        hamster.src = originalSrc;
+        hamster.classList.add('bounce');
+        if(speechBubble) speechBubble.classList.remove('show');
+        game.isBusy = false;
+        hamster.onerror = null;
+      };
+      
+      const duration = 2500 + Math.random() * 1500;
+      setTimeout(() => {
+        hamster.src = originalSrc;
+        hamster.classList.add('bounce');
+        if(speechBubble) speechBubble.classList.remove('show');
+        game.isBusy = false;
+        hamster.onerror = null;
+      }, duration);
+    }
+
+    /* B 버튼: 뒤태 (back.png) - 씰룩씰룩(엉덩이 흔들림) / 토실토실(귀여운 엉덩이) */
+    function showButtAction() {
+      if(game.isBusy) return;
+      
+      game.isBusy = true;
+      
+      const isWiggle = Math.random() < 0.5; // 50% 씰룩씰룩, 50% 토실토실
+      const bubbleText = isWiggle ? '씰룩씰룩' : '토실토실';
+      
+      log(isWiggle ? '🍑 하루치 엉덩이가 씰룩씰룩~' : '🍑 하루치 토실토실한 엉덩이!');
+      
+      const originalSrc = './assets/normal.png';
+      hamster.src = './assets/back.png';
+      hamster.classList.remove('bounce', 'sleeping', 'drinking', 'angry');
+      hamster.classList.add('butt');
+      if(isWiggle) hamster.classList.add('butt-wiggle');
+      
+      const buttBubble = document.getElementById('buttSpeechBubble');
+      if(buttBubble) {
+        buttBubble.textContent = bubbleText;
+        buttBubble.classList.add('show');
+      }
+      
+      hamster.onerror = function() {
+        console.warn("이미지 로드 실패: back.png");
+        hamster.src = originalSrc;
+        hamster.classList.add('bounce');
+        hamster.classList.remove('butt', 'butt-wiggle');
+        if(buttBubble) buttBubble.classList.remove('show');
+        game.isBusy = false;
+        hamster.onerror = null;
+      };
+      
+      const duration = 2500 + Math.random() * 1000;
+      setTimeout(() => {
+        hamster.src = originalSrc;
+        hamster.classList.add('bounce');
+        hamster.classList.remove('butt', 'butt-wiggle');
+        if(buttBubble) buttBubble.classList.remove('show');
         game.isBusy = false;
         hamster.onerror = null;
       }, duration);
