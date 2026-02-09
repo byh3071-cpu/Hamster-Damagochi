@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
   <title>Hamster Tamagotchi Final Fix</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,7 +12,7 @@
 
   <style>
     :root {
-      background: transparent;
+      background: #000 !important;
       /* === 프레임 설정 === */
       --frame-w: 673px;
       --frame-h: 673px;
@@ -52,8 +53,7 @@
       height: 100%;
       min-height: 100vh;
       overflow: hidden;
-      background-color: transparent;
-      background: transparent;
+      background: #000 !important;
       font-family: 'Press Start 2P', 'Noto Sans KR', sans-serif;
     }
 
@@ -64,16 +64,16 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 10px;
+      padding: 0;
       overflow: hidden;
-      background: transparent;
+      background: #000 !important;
     }
 
     .scale-wrapper {
       position: relative;
       overflow: hidden;
       flex-shrink: 0;
-      background: transparent;
+      background: transparent !important;
     }
 
     .device-container {
