@@ -27,7 +27,7 @@ const CONFIG = {
     todo: {
       dbId: process.env.TODO_DB_ID,
       type: '할일',
-      titleKey: '할 일',        // 띄어쓰기 주의
+      titleKey: process.env.TODO_TITLE_KEY || '할 일',  // 할일 DB 제목 속성명 (띄어쓰기 주의, '할일'도 시도)
       doneKey: '완료',
       xpGrantedKey: 'XP 지급됨',
       reward: 10,
@@ -84,9 +84,9 @@ const CONFIG = {
     }
   },
 
-  // 2. XP 로그 DB 속성 (타겟)
+  // 2. XP 로그 DB 속성 (타겟) - titleKey는 XP DB의 제목 컬럼 속성명과 정확히 일치해야 함
   xpLog: {
-    titleKey: '[타입] · [원본/내용] · [XP]', // 복잡한 키 이름
+    titleKey: process.env.XP_LOG_TITLE_KEY || '[타입] · [원본/내용] · [XP]', // XP DB 제목 속성명 (커스텀 시 .env에 설정)
     dateKey: '날짜',
     typeKey: '타입',
     amountKey: 'XP',
@@ -122,7 +122,10 @@ async function syncGamification() {
  * 🟢 [공통] 단순 완료 체크형 DB 처리
  */
 async function processSimpleDB(config) {
-  if (!config.dbId) return;
+  if (!config.dbId) {
+    if (process.env.DEBUG) console.log(`   [${config.type}] DB ID 없음 - 스킵`);
+    return;
+  }
 
   // XP 미지급 & 완료된 항목 조회
   const pages = await queryDatabase(config.dbId, {
@@ -131,6 +134,8 @@ async function processSimpleDB(config) {
       { property: config.xpGrantedKey, checkbox: { equals: false } }
     ]
   });
+
+  if (process.env.DEBUG) console.log(`   [${config.type}] 조회 결과: ${pages.length}건 (완료=true, XP지급=false)`);
 
   for (const page of pages) {
     const title = getTitle(page, config.titleKey);
@@ -250,7 +255,15 @@ async function createXPLogAndGrant({ title, type, xp, sourceRelationKey, sourceP
     const today = new Date().toISOString().split('T')[0];
     const uniqueKey = `${type}_${sourcePageId}`; // 중복 생성 방지용 키
 
-    // 1. XP 로그 생성
+    // 1. 원본 페이지 'XP 지급됨' 먼저 체크 (로그 생성 실패 시 중복 XP 방지)
+    await notion.pages.update({
+      page_id: sourcePageId,
+      properties: {
+        [xpGrantedKey]: { checkbox: true }
+      }
+    });
+
+    // 2. XP 로그 생성
     const props = {
       [CONFIG.xpLog.titleKey]: { title: [{ text: { content: title } }] },
       [CONFIG.xpLog.dateKey]: { date: { start: today } },
@@ -274,14 +287,6 @@ async function createXPLogAndGrant({ title, type, xp, sourceRelationKey, sourceP
       properties: props
     });
 
-    // 2. 원본 페이지 'XP 지급됨' 체크
-    await notion.pages.update({
-      page_id: sourcePageId,
-      properties: {
-        [xpGrantedKey]: { checkbox: true }
-      }
-    });
-
   } catch (e) {
     console.error(`   ❌ 로그 생성 실패 (${title}):`, e.body || e.message);
   }
@@ -298,5 +303,23 @@ function getTitle(page, key) {
   return '제목 없음';
 }
 
+// DEBUG=1 일 때 할일 DB 스키마 출력 (속성명 확인용)
+async function debugTodoSchema() {
+  if (!process.env.DEBUG || !process.env.TODO_DB_ID) return;
+  try {
+    const db = await notion.databases.retrieve({ database_id: process.env.TODO_DB_ID });
+    console.log('\n📋 [DEBUG] 할일 DB 속성 목록:');
+    for (const [key, val] of Object.entries(db.properties)) {
+      console.log(`   - "${key}" (${val.type})`);
+    }
+  } catch (e) {
+    console.error('   DB 조회 실패:', e.message);
+  }
+}
+
 // 실행
-syncGamification();
+if (process.env.DEBUG) {
+  debugTodoSchema().then(() => syncGamification());
+} else {
+  syncGamification();
+}

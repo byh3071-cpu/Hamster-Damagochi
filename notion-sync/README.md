@@ -21,3 +21,11 @@ npm start
 - [ ] XP 로그 DB에 **Integration 연결**
 - [ ] **하루치 캐릭터 페이지**를 Integration과 **공유** (HARUCHI_PAGE_ID)
 - [ ] 책형 DB에 `XP 지급됨` 체크박스 속성 추가 (없는 경우)
+
+## 베르셀(Vercel) 배포 시 (다마고치 실시간 XP)
+
+다마고치가 노션 XP를 실시간으로 표시하려면 Vercel 환경변수에 다음을 설정하세요.
+
+- `NOTION_API_KEY` - 노션 Integration 토큰
+- `XP_LOG_DB_ID` - XP 로그 DB ID
+- `HARUCHI_PAGE_ID` - 하루치 캐릭터 페이지 ID
