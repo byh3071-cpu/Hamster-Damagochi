@@ -1313,16 +1313,47 @@
       }
     }
 
+    /* Notion XP 실시간 동기화 - 베르셀 링크 임베드에서 노션 경험치 반영 */
+    async function fetchAndApplyNotionXP() {
+      try {
+        const res = await fetch('/api/game');
+        const data = await res.json();
+        if (!data || typeof data.totalXP !== 'number') return;
+
+        const notionTotal = data.totalXP;
+        const notionLevel = data.level ?? Math.floor(notionTotal / (data.maxExp || 100)) + 1;
+        const notionExp = data.exp ?? notionTotal % (data.maxExp || 100);
+        const currentTotal = (game.level - 1) * game.maxExp + game.exp;
+
+        if (notionTotal >= currentTotal && (notionLevel !== game.level || notionExp !== game.exp)) {
+          const didLevelUp = notionLevel > game.level;
+          game.level = notionLevel;
+          game.exp = notionExp;
+          updateUI();
+          if (didLevelUp) {
+            logLevelUp(`⭐ LEVEL UP! LV.${game.level} ⭐`);
+            showLevelUpEffect();
+          }
+        }
+      } catch (e) {
+        /* 네트워크/로컬 환경 등에서 실패 시 무시 */
+      }
+    }
+
     function init() {
       initStats();
       initDailyGoal();
       updateUI();
       fitScale();
       window.addEventListener('resize', fitScale);
-      
+
+      /* Notion XP 초기 로드 및 30초마다 실시간 갱신 */
+      fetchAndApplyNotionXP();
+      setInterval(fetchAndApplyNotionXP, 30000);
+
       // sad 이미지 랜덤 표시 체크 시작
       startSadCheckTimer();
-      
+
       // 그루밍 애니메이션 체크 시작
       startGroomingCheckTimer();
     }

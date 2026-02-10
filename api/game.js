@@ -1,36 +1,88 @@
 /**
- * Hamster Damagochi - Notion 연동 API (Vercel Serverless)
+ * Hamster Damagochi - Notion XP 조회 API (Vercel Serverless)
  *
- * [연동 순서]
- * 1. Notion Integration 생성 → Internal Integration Token 발급
- * 2. 각 DB(할 일, 루틴, 독서, 운동)에 Integration 연결
- * 3. NOTION_API_KEY, DB_ID_* 환경변수 설정
+ * XP 로그 DB에서 하루치(HARUCHI_PAGE_ID)에 연결된 XP 합계를 조회하여 반환합니다.
+ * [환경변수] Vercel에 설정: NOTION_API_KEY, XP_LOG_DB_ID, HARUCHI_PAGE_ID
  *
- * [응답 형식] { completed: { routine: N, task: N, reading: N, exercise: N } }
- * - 오늘(KST) 완료된 체크박스 개수
- * - 프론트에서 addExpFromTask() 반복 호출 또는 합산 XP 계산
+ * [응답] { totalXP, level, exp, maxExp }
  */
 
-export default async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-  if (req.method === "OPTIONS") return res.status(200).end();
+import { Client } from '@notionhq/client';
 
-  if (req.method !== "GET") {
-    return res.status(405).json({ error: "Method not allowed" });
+const XP_AMOUNT_KEY = 'XP';
+const HARUCHI_RELATION_KEY = '하루치 DB';
+const MAX_EXP_PER_LEVEL = 100;
+
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // TODO: Notion API 연동
-  // const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
-  // const [tasks, routines, books, exercise] = await Promise.all([
-  //   fetchNotionCompleted(DB_ID_TASKS, today),
-  //   fetchNotionCompleted(DB_ID_ROUTINES, today),
-  //   ...
-  // ]);
+  const apiKey = process.env.NOTION_API_KEY;
+  const xpDbId = process.env.XP_LOG_DB_ID;
+  const haruchiPageId = process.env.HARUCHI_PAGE_ID;
 
-  return res.status(200).json({
-    completed: { routine: 0, task: 0, reading: 0, exercise: 0 },
-    today: new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" }),
-    message: "Notion 연동 준비 중. 환경변수 설정 후 구현.",
-  });
+  if (!apiKey || !xpDbId || !haruchiPageId) {
+    return res.status(500).json({
+      error: 'Notion 연동 미설정',
+      message: 'Vercel에 NOTION_API_KEY, XP_LOG_DB_ID, HARUCHI_PAGE_ID 를 설정해주세요.',
+      totalXP: 0,
+      level: 1,
+      exp: 0,
+      maxExp: MAX_EXP_PER_LEVEL,
+    });
+  }
+
+  try {
+    const notion = new Client({ auth: apiKey });
+    let totalXP = 0;
+    let hasMore = true;
+    let startCursor = undefined;
+
+    while (hasMore) {
+      const response = await notion.databases.query({
+        database_id: xpDbId,
+        filter: {
+          property: HARUCHI_RELATION_KEY,
+          relation: { contains: haruchiPageId },
+        },
+        start_cursor: startCursor,
+        page_size: 100,
+      });
+
+      for (const page of response.results) {
+        const prop = page.properties[XP_AMOUNT_KEY];
+        if (prop?.type === 'number' && typeof prop.number === 'number') {
+          totalXP += prop.number;
+        }
+      }
+
+      hasMore = response.has_more;
+      startCursor = response.next_cursor ?? undefined;
+    }
+
+    const level = Math.floor(totalXP / MAX_EXP_PER_LEVEL) + 1;
+    const exp = totalXP % MAX_EXP_PER_LEVEL;
+
+    return res.status(200).json({
+      totalXP,
+      level,
+      exp,
+      maxExp: MAX_EXP_PER_LEVEL,
+    });
+  } catch (e) {
+    console.error('[api/game] Notion 오류:', e.message);
+    return res.status(500).json({
+      error: 'Notion 조회 실패',
+      message: e.message,
+      totalXP: 0,
+      level: 1,
+      exp: 0,
+      maxExp: MAX_EXP_PER_LEVEL,
+    });
+  }
 }
