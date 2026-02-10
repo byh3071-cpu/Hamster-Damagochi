@@ -1,17 +1,31 @@
 /**
  * Hamster Damagochi - Notion XP 조회 API (Vercel Serverless)
  *
- * XP 로그 DB에서 하루치(HARUCHI_PAGE_ID)에 연결된 XP 합계를 조회하여 반환합니다.
- * [환경변수] Vercel에 설정: NOTION_API_KEY, XP_LOG_DB_ID, HARUCHI_PAGE_ID
+ * XP 로그 DB에서 하루치(HARUCHI_PAGE_ID)에 연결된 XP 합계 + 최근 로그를 반환합니다.
+ * [환경변수] NOTION_API_KEY, XP_LOG_DB_ID, HARUCHI_PAGE_ID
  *
- * [응답] { totalXP, level, exp, maxExp }
+ * [응답] { totalXP, level, exp, maxExp, recentLogs: [{ id, type, title, xp }] }
  */
 
 import { Client } from '@notionhq/client';
 
 const XP_AMOUNT_KEY = 'XP';
+const XP_TYPE_KEY = process.env.XP_LOG_TYPE_KEY || '타입';
+const XP_TITLE_KEY = process.env.XP_LOG_TITLE_KEY || '[타입] · [원본/내용] · [XP]';
 const HARUCHI_RELATION_KEY = '하루치 DB';
 const MAX_EXP_PER_LEVEL = 100;
+const RECENT_LOGS_LIMIT = 50;
+
+function getPropText(prop) {
+  if (!prop) return '';
+  if (prop.title?.length > 0) return prop.title[0].plain_text;
+  if (prop.rich_text?.length > 0) return prop.rich_text[0].plain_text;
+  return '';
+}
+
+function getPropSelect(prop) {
+  return prop?.select?.name || '';
+}
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -34,12 +48,14 @@ export default async function handler(req, res) {
       level: 1,
       exp: 0,
       maxExp: MAX_EXP_PER_LEVEL,
+      recentLogs: [],
     });
   }
 
   try {
     const notion = new Client({ auth: apiKey });
     let totalXP = 0;
+    const recentLogs = [];
     let hasMore = true;
     let startCursor = undefined;
 
@@ -50,14 +66,20 @@ export default async function handler(req, res) {
           property: HARUCHI_RELATION_KEY,
           relation: { contains: haruchiPageId },
         },
+        sorts: [{ timestamp: 'created_time', direction: 'descending' }],
         start_cursor: startCursor,
         page_size: 100,
       });
 
       for (const page of response.results) {
-        const prop = page.properties[XP_AMOUNT_KEY];
-        if (prop?.type === 'number' && typeof prop.number === 'number') {
-          totalXP += prop.number;
+        const xpProp = page.properties[XP_AMOUNT_KEY];
+        const xp = xpProp?.type === 'number' && typeof xpProp.number === 'number' ? xpProp.number : 0;
+        totalXP += xp;
+
+        if (recentLogs.length < RECENT_LOGS_LIMIT) {
+          const type = getPropSelect(page.properties[XP_TYPE_KEY]);
+          const title = getPropText(page.properties[XP_TITLE_KEY]) || getPropText(page.properties['Name']);
+          recentLogs.push({ id: page.id, type, title, xp });
         }
       }
 
@@ -73,6 +95,7 @@ export default async function handler(req, res) {
       level,
       exp,
       maxExp: MAX_EXP_PER_LEVEL,
+      recentLogs,
     });
   } catch (e) {
     console.error('[api/game] Notion 오류:', e.message);
@@ -83,6 +106,7 @@ export default async function handler(req, res) {
       level: 1,
       exp: 0,
       maxExp: MAX_EXP_PER_LEVEL,
+      recentLogs: [],
     });
   }
 }

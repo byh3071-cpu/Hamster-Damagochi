@@ -547,6 +547,18 @@
       padding-top: 0; 
     }
     .log-content::-webkit-scrollbar { display: none; }
+
+    .log-panel-clickable { cursor: pointer; }
+    
+    .log-modal-panel { max-width: 90%; width: 400px; max-height: 70vh; }
+    .log-modal-content {
+      overflow-y: auto;
+      max-height: calc(70vh - 60px);
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .log-modal-content .log-line { margin-bottom: 4px; }
     
     .log-item { margin-bottom: 3px; }
     .log-item.new { color: #0f380f; font-weight: bold; animation: flash 0.5s; } /* 일반 로그 */
@@ -1083,7 +1095,7 @@
           <span class="hamster-title" id="hamsterTitle">새내기 하루치</span>
         </div>
       </div>
-      <div class="panel-right">
+      <div class="panel-right log-panel-clickable" onclick="openLogModal()" title="클릭하면 전체 로그 보기">
         <div class="log-title">SYSTEM LOG</div>
         <div class="log-content" id="uiLog">
           <div>> 시스템 가동..</div>
@@ -1109,6 +1121,14 @@
       </div>
     </div>
 
+    <div class="stats-modal" id="logModal">
+      <div class="stats-panel log-modal-panel">
+        <button class="stats-close" onclick="closeLogModal()">×</button>
+        <div class="stats-title">📋 SYSTEM LOG</div>
+        <div class="log-modal-content" id="logModalContent"></div>
+      </div>
+    </div>
+
   </div>
   </div>
   </div>
@@ -1119,6 +1139,9 @@
     const uiExp = document.getElementById('uiExp');
     const expText = document.getElementById('expText');
     const uiLog = document.getElementById('uiLog');
+
+    /* 로그 히스토리 (팝업용, 최대 200개) */
+    let logHistory = [];
 
     /* [수정] 시작 레벨 1, 경험치 0으로 초기화 */
     let game = { 
@@ -1250,8 +1273,8 @@
       }));
     }
 
-    /* 통계 업데이트 (액션 시) */
-    function updateStats(expGained) {
+    /* 통계 업데이트 (액션 시) - countsTowardGoal: 할일/루틴/독서/책형/운동/SNS만 true, 물·밥·쓰다듬기는 false */
+    function updateStats(expGained, countsTowardGoal = false) {
       const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
       
       stats.totalActions++;
@@ -1276,13 +1299,12 @@
       stats.lastActionDate = today;
       saveStats();
 
-      // 일일 목표 업데이트 (EXP가 0보다 큰 경우만 카운트)
-      if(expGained > 0) {
-        // 날짜가 바뀌면 리셋
+      // 일일 목표: 할일/루틴/독서세션/책형/운동/SNS만 카운트 (물·밥·쓰다듬기 제외)
+      if(expGained > 0 && countsTowardGoal) {
         if(dailyGoal.date !== today) {
           dailyGoal = {
             date: today,
-            target: dailyGoal.target, // 목표는 유지
+            target: dailyGoal.target,
             completed: 0,
             achieved: false
           };
@@ -1291,14 +1313,12 @@
         dailyGoal.completed++;
         saveDailyGoal();
         
-        // 목표 달성 체크 (한 번만 실행되도록)
         if(!dailyGoal.achieved && dailyGoal.completed >= dailyGoal.target) {
           dailyGoal.achieved = true;
           saveDailyGoal();
           showGoalAchievedEffect();
           const bonusExp = Math.floor(expGained * 0.5);
           log(`🎯 목표 달성! 보너스 +${bonusExp} EXP`);
-          // 보너스 EXP 추가 (updateStats를 호출하지 않도록 직접 추가)
           game.exp += bonusExp;
           if(game.exp >= game.maxExp) {
             game.level++;
@@ -1314,6 +1334,21 @@
     }
 
     /* Notion XP 실시간 동기화 - 베르셀 링크 임베드에서 노션 경험치 반영 */
+    const GOAL_COUNT_TYPES = ['할일', '루틴', '운동', '독서', '콘텐츠'];
+    const PROCESSED_LOG_IDS_KEY = 'hamsterProcessedNotionLogIds';
+
+    function getProcessedLogIds() {
+      try {
+        const raw = localStorage.getItem(PROCESSED_LOG_IDS_KEY);
+        return raw ? new Set(JSON.parse(raw)) : new Set();
+      } catch (_) { return new Set(); }
+    }
+
+    function saveProcessedLogIds(ids) {
+      const arr = Array.from(ids).slice(-200);
+      localStorage.setItem(PROCESSED_LOG_IDS_KEY, JSON.stringify(arr));
+    }
+
     async function fetchAndApplyNotionXP() {
       try {
         const res = await fetch('/api/game');
@@ -1335,6 +1370,47 @@
             showLevelUpEffect();
           }
         }
+
+        /* recentLogs: 새로 처리된 할일/루틴/독서/운동/SNS만 목표 + 시스템 로그에 반영 */
+        const recentLogs = data.recentLogs || [];
+        const processed = getProcessedLogIds();
+        const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
+
+        for (const entry of recentLogs) {
+          if (processed.has(entry.id)) continue;
+          processed.add(entry.id);
+
+          const type = entry.type || '';
+          const xp = entry.xp || 0;
+          if (!GOAL_COUNT_TYPES.includes(type)) continue;
+
+          if (dailyGoal.date !== today) {
+            dailyGoal = { date: today, target: dailyGoal.target, completed: 0, achieved: false };
+          }
+          dailyGoal.completed++;
+          saveDailyGoal();
+
+          const typeLabel = type === '콘텐츠' ? 'SNS' : type;
+          log(`[${typeLabel}] 완료 +${xp}XP`);
+          updateGoalUI();
+
+          if (!dailyGoal.achieved && dailyGoal.completed >= dailyGoal.target) {
+            dailyGoal.achieved = true;
+            saveDailyGoal();
+            showGoalAchievedEffect();
+            const bonusExp = Math.floor(xp * 0.5);
+            log(`🎯 목표 달성! 보너스 +${bonusExp} EXP`);
+            game.exp += bonusExp;
+            if (game.exp >= game.maxExp) {
+              game.level++;
+              game.exp -= game.maxExp;
+              logLevelUp(`⭐ LEVEL UP! LV.${game.level} ⭐`);
+              showLevelUpEffect();
+            }
+            updateUI();
+          }
+        }
+        saveProcessedLogIds(processed);
       } catch (e) {
         /* 네트워크/로컬 환경 등에서 실패 시 무시 */
       }
@@ -1346,6 +1422,14 @@
       updateUI();
       fitScale();
       window.addEventListener('resize', fitScale);
+
+      /* 초기 로그 히스토리 (팝업용) */
+      if (logHistory.length === 0) {
+        logHistory = [
+          { msg: '시스템 가동..', kind: 'normal' },
+          { msg: '하루치가 기다려요!', kind: 'normal' }
+        ];
+      }
 
       /* Notion XP 초기 로드 및 30초마다 실시간 갱신 */
       fetchAndApplyNotionXP();
@@ -1418,7 +1502,7 @@
       changeAction('./assets/happy.png', 2000);
       showExpParticle(5);
       addExp(5);
-      updateStats(5);
+      updateStats(5, false);  /* 쓰다듬기: 목표 미포함 */
     }
 
     /* 집 클릭 핸들러 */
@@ -1465,7 +1549,7 @@
       changeAction('./assets/eat.png', 2000);
       showExpParticle(10);
       addExp(10);
-      updateStats(10);
+      updateStats(10, false);  /* 밥먹기: 목표 미포함 */
     }
 
     /* 물 급수통 클릭 핸들러 */
@@ -1494,7 +1578,7 @@
       changeDrinkAction(drinkImage, 2000);
       showExpParticle(10);
       addExp(10);
-      updateStats(10);
+      updateStats(10, false);  /* 물마시기: 목표 미포함 */
     }
 
     /* 이미지 사라짐 방지 */
@@ -2391,13 +2475,11 @@
 
     /* 모달 외부 클릭 시 닫기 */
     document.addEventListener('click', function(e) {
-      const modal = document.getElementById('statsModal');
-      if(e.target === modal) {
-        closeStats();
-      }
+      if(e.target === document.getElementById('statsModal')) closeStats();
+      if(e.target === document.getElementById('logModal')) closeLogModal();
     });
 
-    /* 키보드 'S' 키로 통계 열기 */
+    /* 키보드 'S' 키로 통계 열기, Escape로 모달 닫기 */
     document.addEventListener('keydown', function(e) {
       if(e.key === 's' || e.key === 'S') {
         const activeElement = document.activeElement;
@@ -2407,6 +2489,7 @@
       }
       if(e.key === 'Escape') {
         closeStats();
+        closeLogModal();
       }
     });
 
@@ -2451,7 +2534,13 @@
       updateGoalUI();
     }
 
+    function addToLogHistory(msg, kind) {
+      logHistory.unshift({ msg, kind: kind || 'normal' });
+      if (logHistory.length > 200) logHistory.pop();
+    }
+
     function log(msg) {
+      addToLogHistory(msg, 'normal');
       const item = document.createElement('div');
       item.className = 'log-item new';
       item.innerText = `> ${msg}`;
@@ -2460,6 +2549,7 @@
     }
 
     function logLevelUp(msg) {
+      addToLogHistory(msg, 'level-up');
       const item = document.createElement('div');
       item.className = 'log-item new level-up';
       item.innerText = `> ${msg}`;
@@ -2468,11 +2558,29 @@
     }
 
     function logImportant(msg) {
+      addToLogHistory(msg, 'important');
       const item = document.createElement('div');
       item.className = 'log-item new important';
       item.innerText = `> ${msg}`;
       uiLog.prepend(item);
       if(uiLog.children.length > 20) uiLog.removeChild(uiLog.lastChild);
+    }
+
+    function openLogModal() {
+      const content = document.getElementById('logModalContent');
+      const all = logHistory.length ? logHistory : [
+        { msg: '시스템 가동..', kind: 'normal' },
+        { msg: '하루치가 기다려요!', kind: 'normal' }
+      ];
+      content.innerHTML = all.map(e => {
+        const c = e.kind === 'level-up' ? 'level-up' : e.kind === 'important' ? 'important' : '';
+        return `<div class="log-line ${c}">> ${e.msg}</div>`;
+      }).join('');
+      document.getElementById('logModal').classList.add('show');
+    }
+
+    function closeLogModal() {
+      document.getElementById('logModal').classList.remove('show');
     }
 
     init();
