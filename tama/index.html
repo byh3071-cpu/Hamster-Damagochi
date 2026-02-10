@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="color-scheme" content="dark" />
   <title>Hamster Tamagotchi Transparent</title>
+  <link rel="icon" type="image/png" href="assets/normal.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1666,7 +1667,7 @@
       log(randomMessage);
       
       const originalSrc = './assets/normal.png';
-      hamster.src = './assets/sad.png';
+      hamster.src = 'assets/sad.png';
       hamster.classList.remove('bounce', 'sleeping', 'drinking');
       
       // 이미지 로드 실패 시 원상복구
@@ -1715,7 +1716,7 @@
       log(randomMessage);
       
       const originalSrc = './assets/normal.png';
-      hamster.src = './assets/back.png';
+      hamster.src = 'assets/back.png';
       hamster.classList.remove('bounce', 'sleeping', 'drinking');
       hamster.classList.add('angry');
       
@@ -1807,7 +1808,7 @@
       log(isWiggle ? '🍑 하루치 엉덩이가 씰룩씰룩~' : '🍑 하루치 토실토실한 엉덩이!');
       
       const originalSrc = './assets/normal.png';
-      hamster.src = './assets/back.png';
+      hamster.src = 'assets/back.png';
       hamster.classList.remove('bounce', 'sleeping', 'drinking', 'angry');
       hamster.classList.add('butt');
       if(isWiggle) hamster.classList.add('butt-wiggle');
