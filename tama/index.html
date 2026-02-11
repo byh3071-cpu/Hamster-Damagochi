@@ -60,16 +60,17 @@
       --full-and-sleep-width: 115px;
       --full-and-sleep-height: 115px;
 
-      /* === 로고 기본 위치 (Notion 임베드 시 localStorage 없을 때 사용) === */
+      /* === 로고 위치 (라이브/노션 동일 적용, localStorage 미사용) === */
       /* main_logo: 게임기 상단(검은 막대) 중앙 | logo2: 프레임 화면 안 오른쪽 상단 */
-      --logo-top: 17%;
-      --logo-left: 76%;
-      --logo-max-width: 120px;
-      --logo-max-height: 50px;
-      --main-logo-top: 4%;
+      /* 라이브 서버에서 원하는 위치로 조정 후 이 값들을 수정하면 노션에서도 동일하게 표시됨 */
+      --logo-top: 9%;
+      --logo-left: 69%;
+      --logo-max-width: 135px;
+      --logo-max-height: 135px;
+      --main-logo-top: 1.5%;
       --main-logo-left: 50%;
-      --main-logo-max-width: 80px;
-      --main-logo-max-height: 36px;
+      --main-logo-max-width: 130px;
+      --main-logo-max-height: 130px;
 
       /* === A, B, C 버튼 위치 === */
       --btn-size: 65px;
@@ -1088,6 +1089,25 @@
       background: #ffffff;
     }
 
+    /* 로고 위치 조정 (노션 동기화용) */
+    .logo-sync-panel {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 999;
+      background: var(--color-ui-bg);
+      border: 2px solid var(--color-text);
+      border-radius: 8px;
+      font-size: 11px;
+      color: var(--color-text);
+      padding: 10px 12px;
+    }
+    .logo-sync-panel summary { cursor: pointer; font-weight: bold; }
+    .logo-sync-panel .logo-section { margin-top: 10px; }
+    .logo-sync-panel label { display: block; margin-bottom: 4px; }
+    .logo-sync-panel input { width: 50px; margin-left: 4px; }
+    .logo-sync-panel button { margin: 4px 4px 0 0; padding: 4px 8px; cursor: pointer; font-size: 10px; }
+
     /* 물 마시는 모습 - 물 급수통 위치로 이동 */
     /* 
      * 물 급수통 클릭 영역 위치와 동일하게 맞춰주세요.
@@ -1256,6 +1276,23 @@
         <div class="log-modal-content" id="logModalContent"></div>
       </div>
     </div>
+
+    <!-- 로고 위치 조정 (노션과 동일하게 표시하려면 조정 후 [노션용 복사] → index.html :root에 붙여넣기) -->
+    <details class="logo-sync-panel">
+      <summary>🖼 로고 위치 조정</summary>
+      <div class="logo-section">
+        <strong>logo2</strong>
+        <label>Top <input id="syncLogo2Top" value="17">% Left <input id="syncLogo2Left" value="76">%</label>
+        <label>MaxW <input id="syncLogo2W" value="120"> MaxH <input id="syncLogo2H" value="50"></label>
+      </div>
+      <div class="logo-section">
+        <strong>main_logo</strong>
+        <label>Top <input id="syncMainTop" value="4">% Left <input id="syncMainLeft" value="50">%</label>
+        <label>MaxW <input id="syncMainW" value="80"> MaxH <input id="syncMainH" value="36"></label>
+      </div>
+      <button type="button" onclick="applyLogoSync()">적용</button>
+      <button type="button" onclick="copyLogoValuesForNotion()">노션용 복사</button>
+    </details>
 
   </div>
   </div>
@@ -1627,23 +1664,31 @@
           if (o.width != null) root.style.setProperty('--full-and-sleep-width', String(o.width).includes('px') ? o.width : o.width + 'px');
           if (o.height != null) root.style.setProperty('--full-and-sleep-height', String(o.height).includes('px') ? o.height : o.height + 'px');
         }
-        raw = localStorage.getItem('hamsterLogo2Adjust');
-        if (raw) {
-          const o = JSON.parse(raw);
-          if (o.top != null) root.style.setProperty('--logo-top', String(o.top).includes('%') ? o.top : o.top + '%');
-          if (o.left != null) root.style.setProperty('--logo-left', String(o.left).includes('%') ? o.left : o.left + '%');
-          if (o.maxWidth != null) root.style.setProperty('--logo-max-width', String(o.maxWidth).includes('px') ? o.maxWidth : o.maxWidth + 'px');
-          if (o.maxHeight != null) root.style.setProperty('--logo-max-height', String(o.maxHeight).includes('px') ? o.maxHeight : o.maxHeight + 'px');
-        }
-        raw = localStorage.getItem('hamsterMainLogoAdjust');
-        if (raw) {
-          const o = JSON.parse(raw);
-          if (o.top != null) root.style.setProperty('--main-logo-top', String(o.top).includes('%') ? o.top : o.top + '%');
-          if (o.left != null) root.style.setProperty('--main-logo-left', String(o.left).includes('%') ? o.left : o.left + '%');
-          if (o.maxWidth != null) root.style.setProperty('--main-logo-max-width', String(o.maxWidth).includes('px') ? o.maxWidth : o.maxWidth + 'px');
-          if (o.maxHeight != null) root.style.setProperty('--main-logo-max-height', String(o.maxHeight).includes('px') ? o.maxHeight : o.maxHeight + 'px');
-        }
+        /* 로고 위치: localStorage 사용 안 함. :root 값만 사용 → 라이브/노션 동일하게 표시 */
       } catch (_) {}
+    }
+
+    function applyLogoSync() {
+      const r = document.documentElement;
+      const v = (id) => document.getElementById(id)?.value?.trim() || '';
+      r.style.setProperty('--logo-top', (v('syncLogo2Top') || '17') + '%');
+      r.style.setProperty('--logo-left', (v('syncLogo2Left') || '76') + '%');
+      r.style.setProperty('--logo-max-width', (v('syncLogo2W') || '120') + 'px');
+      r.style.setProperty('--logo-max-height', (v('syncLogo2H') || '50') + 'px');
+      r.style.setProperty('--main-logo-top', (v('syncMainTop') || '4') + '%');
+      r.style.setProperty('--main-logo-left', (v('syncMainLeft') || '50') + '%');
+      r.style.setProperty('--main-logo-max-width', (v('syncMainW') || '80') + 'px');
+      r.style.setProperty('--main-logo-max-height', (v('syncMainH') || '36') + 'px');
+    }
+    function copyLogoValuesForNotion() {
+      const r = document.documentElement;
+      const g = (v) => getComputedStyle(r).getPropertyValue(v).trim();
+      const t = g('--logo-top') || '17%', l = g('--logo-left') || '76%';
+      const mw = g('--logo-max-width') || '120px', mh = g('--logo-max-height') || '50px';
+      const mt = g('--main-logo-top') || '4%', ml = g('--main-logo-left') || '50%';
+      const mmw = g('--main-logo-max-width') || '80px', mmh = g('--main-logo-max-height') || '36px';
+      const text = `      --logo-top: ${t};\n      --logo-left: ${l};\n      --logo-max-width: ${mw};\n      --logo-max-height: ${mh};\n      --main-logo-top: ${mt};\n      --main-logo-left: ${ml};\n      --main-logo-max-width: ${mmw};\n      --main-logo-max-height: ${mmh};`;
+      navigator.clipboard.writeText(text).then(() => alert('복사됨! index.html :root 안 로고 섹션에 붙여넣기 후 푸시하세요.'));
     }
 
     function init() {
