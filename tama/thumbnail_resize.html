@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <title>OG 썸네일 생성 (1200x630)</title>
+  <title>OG 썸네일 생성 (카톡용 1200x1200)</title>
   <style>
     body { font-family: sans-serif; padding: 20px; background: #222; color: #fff; }
     #canvas { display: block; margin: 20px 0; border: 2px solid #666; max-width: 100%; max-height: 50vh; }
@@ -19,7 +19,7 @@
 </head>
 <body>
   <h1>OG 썸네일 생성기</h1>
-  <p>위아래 잘림 방지: 1200×630 비율에 맞게 패딩을 추가합니다.</p>
+  <p>카톡·SNS 잘림 방지: 1200×1200 정사각형으로 생성 (카톡이 자르는 방식에 맞춤)</p>
   <div class="btn-row">
     <div>
       <div class="step">1단계</div>
@@ -32,21 +32,23 @@
     </div>
   </div>
   <p style="color:#8bac0f; margin-top:0;">↓ 아래 미리보기 확인 후 저장 버튼 클릭</p>
-  <canvas id="canvas" width="1200" height="630"></canvas>
+  <canvas id="canvas" width="1200" height="1200"></canvas>
 
   <script>
-    const TARGET_W = 1200, TARGET_H = 630;
+    const TARGET = 1200;  // 카톡 잘림 방지용 정사각형
+    const PADDING = 0.85;  // 85% 안에 내용 배치 (여백 확보)
     let hasImage = false;
 
     function draw(img) {
       const canvas = document.getElementById('canvas');
       const ctx = canvas.getContext('2d');
       const w = img.width, h = img.height;
-      const scale = Math.min(TARGET_W / w, TARGET_H / h);
+      const inner = TARGET * PADDING;
+      const scale = Math.min(inner / w, inner / h);
       const newW = w * scale, newH = h * scale;
-      const x = (TARGET_W - newW) / 2, y = (TARGET_H - newH) / 2;
+      const x = (TARGET - newW) / 2, y = (TARGET - newH) / 2;
       ctx.fillStyle = '#1a1a1a';
-      ctx.fillRect(0, 0, TARGET_W, TARGET_H);
+      ctx.fillRect(0, 0, TARGET, TARGET);
       ctx.drawImage(img, x, y, newW, newH);
       hasImage = true;
     }
