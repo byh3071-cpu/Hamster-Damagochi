@@ -24,7 +24,7 @@
 ### 필수 작업
 1. 생성한 이미지를 `assets` 폴더에 복사
 2. 파일명: `wheel.png`
-3. 위치: `tama/assets/wheel.png`
+3. 위치: `tama/assets/animations/wheel.png`
 
 ### 이미지 확인 사항
 - ✅ 2행 4열 레이아웃 (총 8프레임)
@@ -36,7 +36,7 @@
 
 1. **이미지 복사 확인**
    ```
-   tama/assets/wheel.png 파일이 존재하는지 확인
+   tama/assets/animations/wheel.png 파일이 존재하는지 확인
    ```
 
 2. **브라우저에서 테스트**
@@ -73,7 +73,7 @@
 ### CSS 애니메이션
 ```css
 .ham.wheel::after{
-  background-image: url("./assets/wheel.png");
+  background-image: url("./assets/animations/wheel.png");
   background-size: 400% 200%; /* 4열 2행 */
   animation: wheelRun 0.8s steps(8) infinite;
 }

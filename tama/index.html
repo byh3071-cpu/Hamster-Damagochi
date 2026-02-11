@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="color-scheme" content="dark" />
   <title>Hamster Tamagotchi Transparent</title>
-  <link rel="icon" type="image/png" href="assets/normal.png">
+  <link rel="icon" type="image/png" href="assets/hamster/normal.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,6 +39,27 @@
       --exp-bar-bg: #306230;    
       --exp-bar-fill: #0f380f;  
 
+      /* === 버튼 테스트 이미지(throw up / throw up 2) 위치·크기 조정 === */
+      --btn-test-left: 58%;
+      --btn-test-top: 60%;
+      --btn-test-width: 160px;
+      --btn-test-height: 160px;
+      /* === stop drink.png 전용 위치·크기 (기본 58% / 58% / 80px / 80px) === */
+      --btn-test-stopdrink-left: 60%;
+      --btn-test-stopdrink-top: 55%;
+      --btn-test-stopdrink-width: 90px;
+      --btn-test-stopdrink-height: 90px;
+      /* === throw up 2.png 전용 위치·크기 === */
+      --btn-test-throwup2-left: 58%;
+      --btn-test-throwup2-top: 58%;
+      --btn-test-throwup2-width: 100px;
+      --btn-test-throwup2-height: 100px;
+      /* === full_and_sleep.png 전용 위치·크기 (밥 먹고 잠들기) === */
+      --full-and-sleep-left: 85%;
+      --full-and-sleep-top: 65%;
+      --full-and-sleep-width: 115px;
+      --full-and-sleep-height: 115px;
+
       /* === A, B, C 버튼 위치 === */
       --btn-size: 65px;
       --btn-bottom: 61px;
@@ -53,8 +74,8 @@
        * 이 값들은 물 급수통 클릭 영역의 중앙 하단을 기준으로 계산됩니다.
        * 물 급수통 위치가 변경되면 이 값도 조정이 필요합니다.
        */
-      --water-drop-offset-x: 0px; /* 물방울 X 위치 오프셋 (양수=오른쪽, 음수=왼쪽) - 조정 필요 */
-      --water-drop-offset-y: 0px; /* 물방울 Y 위치 오프셋 (양수=아래, 음수=위) - 조정 필요 */
+      --water-drop-offset-x: -140px; /* 물방울 X 위치 오프셋 (양수=오른쪽, 음수=왼쪽) - 조정 필요 */
+      --water-drop-offset-y: -100px; /* 물방울 Y 위치 오프셋 (양수=아래, 음수=위) - 조정 필요 */
 
       /* === 그루밍 애니메이션 위치 조정 === */
       /* 
@@ -233,10 +254,30 @@
       right: 196px; /* 오른쪽에 배치 (그릇과 집 사이) - 물 급수통 위치에 맞춰 조정 */
       bottom: 146px; /* 아래에서 90px 위 - 물 급수통 높이에 맞춰 조정 */
       width: 42px; /* 물 급수통 크기에 맞춰 조정 */
-      height: 118px; /* 물 급수통 크기에 맞춰 조정 */
+      height: 118px; /* 물 급수통 높이에 맞춰 조정 */
       z-index: 25; /* 하루치(z-index: 20)보다 높게 설정 */
       cursor: pointer;
       background: transparent;
+    }
+
+    /* 물 10회 이상 시 물 급수통 쪽 토하는 모션 (throw up 2) 오버레이 */
+    .throwup2-overlay {
+      position: absolute;
+      right: 170px;
+      bottom: 140px;
+      width: 90px;
+      height: 90px;
+      z-index: 26;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .throwup2-overlay img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
     }
 
     /* 하루치 위치 조정 */
@@ -253,6 +294,27 @@
       background-size: 400% 400%; /* 4x4 그리드 (16프레임) */
       background-repeat: no-repeat;
       background-position: 0% 0%;
+    }
+    /* A 버튼 throw up.png 전용 위치·크기 (조정 패널에서 변경) */
+    .hamster.btn-test-adjust {
+      left: var(--btn-test-left) !important;
+      top: var(--btn-test-top) !important;
+      width: var(--btn-test-width) !important;
+      height: var(--btn-test-height) !important;
+    }
+    /* C 버튼 throw up 2.png 전용 위치·크기 */
+    .hamster.btn-test-throwup2 {
+      left: var(--btn-test-throwup2-left) !important;
+      top: var(--btn-test-throwup2-top) !important;
+      width: var(--btn-test-throwup2-width) !important;
+      height: var(--btn-test-throwup2-height) !important;
+    }
+    /* B 버튼 stop drink.png 전용 위치·크기 (58%/58%, 80px/80px 기본) */
+    .hamster.btn-test-stopdrink {
+      left: var(--btn-test-stopdrink-left) !important;
+      top: var(--btn-test-stopdrink-top) !important;
+      width: var(--btn-test-stopdrink-width) !important;
+      height: var(--btn-test-stopdrink-height) !important;
     }
 
     /* back.png (화난/삐진 모습) 전용 위치·크기 */
@@ -282,7 +344,7 @@
       transform: translate(-50%, -50%) !important; /* 중앙 정렬, 위치 고정 */
       width: 120px; /* 그루밍 애니메이션 크기 (노멀 이미지와 동일한 크기) */
       height: 120px; /* 그루밍 애니메이션 크기 (노멀 이미지와 동일한 크기) */
-      background-image: url('./assets/spr_hamster_shedding.png');
+      background-image: url('./assets/animations/spr_hamster_shedding.png');
       /* background-size는 JavaScript에서 동적으로 설정됨 */
       background-repeat: no-repeat;
       background-position: 0px 0px; /* JavaScript로 업데이트됨 */
@@ -360,7 +422,33 @@
       z-index: 100; 
       pointer-events: none; 
     }
-    .layer-frame img { width: 100%; display: block; }
+    .layer-frame img.frame-img { width: 100%; display: block; }
+    /* 게임기 상단 로고 (logo2.png - 크기/위치 조정 패널로 변경) */
+    .device-logo {
+      position: absolute;
+      top: var(--logo-top, 2%);
+      left: var(--logo-left, 50%);
+      transform: translateX(-50%);
+      width: var(--logo-width, auto);
+      max-width: var(--logo-max-width, 100px);
+      max-height: var(--logo-max-height, 36px);
+      object-fit: contain;
+      z-index: 101;
+      image-rendering: pixelated;
+    }
+    /* main_logo 전용 (크기/위치 조정 패널로 변경) */
+    .main-logo {
+      position: absolute;
+      top: var(--main-logo-top, 1.5%);
+      left: var(--main-logo-left, 50%);
+      transform: translateX(-50%);
+      width: var(--main-logo-width, auto);
+      max-width: var(--main-logo-max-width, 130px);
+      max-height: var(--main-logo-max-height, 130px);
+      object-fit: contain;
+      z-index: 102;
+      image-rendering: pixelated;
+    }
 
     /* 왼쪽 패널 (LV/EXP) */
     .panel-left {
@@ -559,8 +647,28 @@
       line-height: 1.6;
     }
     .log-modal-content .log-line { margin-bottom: 4px; }
-    
+    .log-section { margin-bottom: 14px; }
+    .log-section-title {
+      font-size: 10px;
+      font-weight: bold;
+      color: var(--color-text);
+      margin-bottom: 6px;
+      padding-bottom: 4px;
+      border-bottom: 2px solid var(--exp-bar-bg);
+    }
+    .log-cat-tag {
+      display: inline-block;
+      font-size: 8px;
+      padding: 1px 5px;
+      margin-right: 6px;
+      border-radius: 4px;
+      background: var(--exp-bar-bg);
+      color: #fff;
+    }
+    .log-xp { color: var(--exp-bar-fill); font-weight: bold; }
     .log-item { margin-bottom: 3px; }
+
+
     .log-item.new { color: #0f380f; font-weight: bold; animation: flash 0.5s; } /* 일반 로그 */
     .log-item.level-up { color: #ffcc00; font-weight: bold; animation: flash 0.5s; } /* 레벨 업 - 밝은 골드 */
     .log-item.important { color: #2d3d1f; font-weight: bold; animation: flash 0.5s; } /* 중요 메시지 */
@@ -762,6 +870,13 @@
       height: 120px !important;
       transform: translate(-50%, -50%);
       animation: sleepBreath 2s infinite ease-in-out;
+    }
+    /* full_and_sleep 전용 위치·크기 (조정 패널에서 변경) */
+    .hamster.sleeping.full-and-sleep-adjust {
+      left: var(--full-and-sleep-left) !important;
+      top: var(--full-and-sleep-top) !important;
+      width: var(--full-and-sleep-width) !important;
+      height: var(--full-and-sleep-height) !important;
     }
 
     @keyframes sleepBreath {
@@ -1049,8 +1164,8 @@
     <div class="panel-gap-top"></div>
     
     <div class="screen-top">
-      <img src="./assets/bg.png" class="bg-image" alt="배경">
-      <img src="./assets/normal.png" class="hamster bounce" id="hamster" alt="하루치">
+      <img src="./assets/scene/bg.png" class="bg-image" alt="배경">
+      <img src="./assets/hamster/normal.png" class="hamster bounce" id="hamster" alt="하루치">
       <div class="grooming-overlay" id="groomingOverlay"></div>
       <div class="hamster-click-area" onclick="handleHamsterClick()" title="클릭: 쓰다듬기"></div>
       
@@ -1105,7 +1220,9 @@
     </div>
 
     <div class="layer-frame">
-      <img src="./assets/frame.png" alt="Frame">
+      <img src="./assets/scene/frame.png" class="frame-img" alt="Frame">
+      <img src="./assets/logo2.png" class="device-logo" alt="Logo">
+      <img src="./assets/main_logo.png" class="main-logo" alt="Main Logo">
     </div>
 
     <div class="btn-area btn-a" onclick="handleBtn('A')" title="밥주기"></div>
@@ -1140,8 +1257,39 @@
     const expText = document.getElementById('expText');
     const uiLog = document.getElementById('uiLog');
 
-    /* 로그 히스토리 (팝업용, 최대 200개) */
+    /* 로그 히스토리 (팝업용, 최대 200개) - category: 할일/루틴/운동/독서/SNS/목표보너스 | 밥먹기/물마시기/쓰다듬기 | 레벨업 | 기타 */
     let logHistory = [];
+    const LOG_CATEGORY_TASK = ['할일', '루틴', '운동', '독서', 'SNS', '목표보너스'];
+    const LOG_CATEGORY_CLICK = ['밥먹기', '물마시기', '쓰다듬기'];
+
+    /* 일일 밥/물 횟수 (10회 이상 시 과다 반응), 밥 먹은 뒤 집 클릭 시 full_and_sleep */
+    const DAILY_EAT_DRINK_KEY = 'hamsterDailyEatDrink';
+    const MAX_EAT_BEFORE_THROWUP = 10;
+    const MAX_DRINK_BEFORE_STOP = 10;
+    const JUST_ATE_WINDOW_MS = 15000; /* 밥 먹은 뒤 이 시간 안에 집 클릭 시 full_and_sleep */
+    let justAteAt = 0;
+
+    const EAT_DRINK_COOLDOWN_MS = 60000; /* 1분 쿨다운 */
+    function getDailyEatDrink() {
+      const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
+      try {
+        const raw = localStorage.getItem(DAILY_EAT_DRINK_KEY);
+        const parsed = raw ? JSON.parse(raw) : null;
+        if (parsed && parsed.date === today) {
+          return {
+            date: today,
+            eat: parsed.eat || 0,
+            drink: parsed.drink || 0,
+            eatCooldownUntil: parsed.eatCooldownUntil || 0,
+            drinkCooldownUntil: parsed.drinkCooldownUntil || 0
+          };
+        }
+      } catch (_) {}
+      return { date: today, eat: 0, drink: 0, eatCooldownUntil: 0, drinkCooldownUntil: 0 };
+    }
+    function saveDailyEatDrink(obj) {
+      localStorage.setItem(DAILY_EAT_DRINK_KEY, JSON.stringify(obj));
+    }
 
     /* [수정] 시작 레벨 1, 경험치 0으로 초기화 */
     let game = { 
@@ -1174,7 +1322,7 @@
     };
 
 
-    /* 통계 초기화 */
+    /* 통계 초기화 - 로컬 경험치(물/밥/쓰다듬기 등)로 레벨·EXP 복원 */
     function initStats() {
       const saved = localStorage.getItem('hamsterStats');
       if(saved) {
@@ -1187,8 +1335,13 @@
           lastActionDate: parsed.lastActionDate || null,
           consecutiveDays: parsed.consecutiveDays || 0
         };
+        /* 저장된 총 경험치로 레벨/EXP 복원 (노션 동기화 전에도 물·밥·쓰다듬기 경험치 유지) */
+        if (stats.totalExp > 0) {
+          game.level = Math.floor(stats.totalExp / game.maxExp) + 1;
+          game.exp = stats.totalExp % game.maxExp;
+        }
       }
-      
+
       const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
       if(!stats.firstPlayDate) {
         stats.firstPlayDate = today;
@@ -1318,7 +1471,7 @@
           saveDailyGoal();
           showGoalAchievedEffect();
           const bonusExp = Math.floor(expGained * 0.5);
-          log(`🎯 목표 달성! 보너스 +${bonusExp} EXP`);
+          log(`🎯 목표 달성! 보너스 +${bonusExp} EXP`, { category: '목표보너스', xp: bonusExp });
           game.exp += bonusExp;
           if(game.exp >= game.maxExp) {
             game.level++;
@@ -1356,14 +1509,23 @@
         if (!data || typeof data.totalXP !== 'number') return;
 
         const notionTotal = data.totalXP;
-        const notionLevel = data.level ?? Math.floor(notionTotal / (data.maxExp || 100)) + 1;
-        const notionExp = data.exp ?? notionTotal % (data.maxExp || 100);
+        const maxExp = data.maxExp || game.maxExp || 100;
         const currentTotal = (game.level - 1) * game.maxExp + game.exp;
+        const localTotal = stats.totalExp || 0;
+        /* 노션(할일/루틴 등) + 로컬(물/밥/쓰다듬기 등) 경험치 유지: 둘 중 큰 쪽으로 합침 */
+        const total = Math.max(notionTotal, currentTotal, localTotal);
 
-        if (notionTotal >= currentTotal && (notionLevel !== game.level || notionExp !== game.exp)) {
-          const didLevelUp = notionLevel > game.level;
-          game.level = notionLevel;
-          game.exp = notionExp;
+        const newLevel = Math.floor(total / maxExp) + 1;
+        const newExp = total % maxExp;
+        const didLevelUp = newLevel > game.level;
+
+        if (newLevel !== game.level || newExp !== game.exp) {
+          game.level = newLevel;
+          game.exp = newExp;
+          if (total > stats.totalExp) {
+            stats.totalExp = total;
+            saveStats();
+          }
           updateUI();
           if (didLevelUp) {
             logLevelUp(`⭐ LEVEL UP! LV.${game.level} ⭐`);
@@ -1391,7 +1553,7 @@
           saveDailyGoal();
 
           const typeLabel = type === '콘텐츠' ? 'SNS' : type;
-          log(`[${typeLabel}] 완료 +${xp}XP`);
+          log(`[${typeLabel}] 완료 +${xp}XP`, { category: typeLabel, xp: xp });
           updateGoalUI();
 
           if (!dailyGoal.achieved && dailyGoal.completed >= dailyGoal.target) {
@@ -1399,8 +1561,10 @@
             saveDailyGoal();
             showGoalAchievedEffect();
             const bonusExp = Math.floor(xp * 0.5);
-            log(`🎯 목표 달성! 보너스 +${bonusExp} EXP`);
+            log(`🎯 목표 달성! 보너스 +${bonusExp} EXP`, { category: '목표보너스', xp: bonusExp });
             game.exp += bonusExp;
+            stats.totalExp += bonusExp;
+            saveStats();
             if (game.exp >= game.maxExp) {
               game.level++;
               game.exp -= game.maxExp;
@@ -1416,12 +1580,68 @@
       }
     }
 
+    /* 저장된 throw up/stop drink/throw up 2/full_and_sleep 위치·크기 적용 (localStorage) */
+    function loadSavedImagePositions() {
+      const root = document.documentElement;
+      try {
+        let raw = localStorage.getItem('hamsterBtnTestAdjust');
+        if (raw) {
+          const o = JSON.parse(raw);
+          if (o.left != null) root.style.setProperty('--btn-test-left', String(o.left).includes('%') ? o.left : o.left + '%');
+          if (o.top != null) root.style.setProperty('--btn-test-top', String(o.top).includes('%') ? o.top : o.top + '%');
+          if (o.width != null) root.style.setProperty('--btn-test-width', String(o.width).includes('px') ? o.width : o.width + 'px');
+          if (o.height != null) root.style.setProperty('--btn-test-height', String(o.height).includes('px') ? o.height : o.height + 'px');
+        }
+        raw = localStorage.getItem('hamsterBtnTestStopDrinkAdjust');
+        if (raw) {
+          const o = JSON.parse(raw);
+          if (o.left != null) root.style.setProperty('--btn-test-stopdrink-left', String(o.left).includes('%') ? o.left : o.left + '%');
+          if (o.top != null) root.style.setProperty('--btn-test-stopdrink-top', String(o.top).includes('%') ? o.top : o.top + '%');
+          if (o.width != null) root.style.setProperty('--btn-test-stopdrink-width', String(o.width).includes('px') ? o.width : o.width + 'px');
+          if (o.height != null) root.style.setProperty('--btn-test-stopdrink-height', String(o.height).includes('px') ? o.height : o.height + 'px');
+        }
+        raw = localStorage.getItem('hamsterBtnTestThrowUp2Adjust');
+        if (raw) {
+          const o = JSON.parse(raw);
+          if (o.left != null) root.style.setProperty('--btn-test-throwup2-left', String(o.left).includes('%') ? o.left : o.left + '%');
+          if (o.top != null) root.style.setProperty('--btn-test-throwup2-top', String(o.top).includes('%') ? o.top : o.top + '%');
+          if (o.width != null) root.style.setProperty('--btn-test-throwup2-width', String(o.width).includes('px') ? o.width : o.width + 'px');
+          if (o.height != null) root.style.setProperty('--btn-test-throwup2-height', String(o.height).includes('px') ? o.height : o.height + 'px');
+        }
+        raw = localStorage.getItem('hamsterFullAndSleepAdjust');
+        if (raw) {
+          const o = JSON.parse(raw);
+          if (o.left != null) root.style.setProperty('--full-and-sleep-left', String(o.left).includes('%') ? o.left : o.left + '%');
+          if (o.top != null) root.style.setProperty('--full-and-sleep-top', String(o.top).includes('%') ? o.top : o.top + '%');
+          if (o.width != null) root.style.setProperty('--full-and-sleep-width', String(o.width).includes('px') ? o.width : o.width + 'px');
+          if (o.height != null) root.style.setProperty('--full-and-sleep-height', String(o.height).includes('px') ? o.height : o.height + 'px');
+        }
+        raw = localStorage.getItem('hamsterLogo2Adjust');
+        if (raw) {
+          const o = JSON.parse(raw);
+          if (o.top != null) root.style.setProperty('--logo-top', String(o.top).includes('%') ? o.top : o.top + '%');
+          if (o.left != null) root.style.setProperty('--logo-left', String(o.left).includes('%') ? o.left : o.left + '%');
+          if (o.maxWidth != null) root.style.setProperty('--logo-max-width', String(o.maxWidth).includes('px') ? o.maxWidth : o.maxWidth + 'px');
+          if (o.maxHeight != null) root.style.setProperty('--logo-max-height', String(o.maxHeight).includes('px') ? o.maxHeight : o.maxHeight + 'px');
+        }
+        raw = localStorage.getItem('hamsterMainLogoAdjust');
+        if (raw) {
+          const o = JSON.parse(raw);
+          if (o.top != null) root.style.setProperty('--main-logo-top', String(o.top).includes('%') ? o.top : o.top + '%');
+          if (o.left != null) root.style.setProperty('--main-logo-left', String(o.left).includes('%') ? o.left : o.left + '%');
+          if (o.maxWidth != null) root.style.setProperty('--main-logo-max-width', String(o.maxWidth).includes('px') ? o.maxWidth : o.maxWidth + 'px');
+          if (o.maxHeight != null) root.style.setProperty('--main-logo-max-height', String(o.maxHeight).includes('px') ? o.maxHeight : o.maxHeight + 'px');
+        }
+      } catch (_) {}
+    }
+
     function init() {
       initStats();
       initDailyGoal();
       updateUI();
       fitScale();
       window.addEventListener('resize', fitScale);
+      loadSavedImagePositions();
 
       /* 초기 로그 히스토리 (팝업용) */
       if (logHistory.length === 0) {
@@ -1460,28 +1680,19 @@
 
     function handleBtn(btn) {
       if(game.isBusy) {
-        // 버튼이 안 눌러질 때 가끔씩 sad/angry 표시 (5% 확률, 70% sad, 30% angry)
         const lastEmotionTime = Math.max(game.lastSadTime, game.lastAngryTime);
         if(Math.random() < 0.05 && Date.now() - lastEmotionTime > 10000) {
           showSadOrAngryRandomly();
         }
         return;
       }
-
-      // [주의] 폴더에 eat.png, happy.png 파일이 꼭 있어야 합니다.
       if(btn === 'A') {
-        // A 버튼: 그루밍 애니메이션 실행
         log("하루치 그루밍 중 ...");
-        // A 버튼은 강제 실행이므로 busy 체크를 건너뛰기 위해 busy를 false로 설정
-        const wasBusy = game.isBusy;
         game.isBusy = false;
         showGroomingAnimation();
-        // showGroomingAnimation이 busy를 관리하므로 여기서는 복원하지 않음
       } else if(btn === 'B') {
-        // B 버튼: 엉덩이 흔들기 (씰룩씰룩 / 토실토실)
         showButtAction();
       } else if(btn === 'C') {
-        // C 버튼: 화난 모습 (angry.png)
         showAngryFaceAction();
       }
     }
@@ -1498,17 +1709,16 @@
       }
       game.isBusy = true;
       game.lastActionTime = Date.now(); // 액션 시간 업데이트
-      log("쓰담쓰담.. 기분 최고! +5");
-      changeAction('./assets/happy.png', 2000);
+      log("쓰담쓰담.. 기분 최고! +5", { category: '쓰다듬기', xp: 5 });
+      changeAction('./assets/hamster/happy.png', 2000);
       showExpParticle(5);
       addExp(5);
       updateStats(5, false);  /* 쓰다듬기: 목표 미포함 */
     }
 
-    /* 집 클릭 핸들러 */
+    /* 집 클릭 핸들러 - 밥 먹은 뒤 일정 시간 안에 클릭 시 full_and_sleep (밥 먹고 자면 기분 좋다) */
     function handleHouseClick() {
       if(game.isBusy) {
-        // 버튼이 안 눌러질 때 가끔씩 sad/angry 표시 (5% 확률, 70% sad, 30% angry)
         const lastEmotionTime = Math.max(game.lastSadTime, game.lastAngryTime);
         if(Math.random() < 0.05 && Date.now() - lastEmotionTime > 10000) {
           showSadOrAngryRandomly();
@@ -1516,74 +1726,185 @@
         return;
       }
       game.isBusy = true;
-      game.lastActionTime = Date.now(); // 액션 시간 업데이트
-      log("집에 들어가서 잠자기... Zzz +0");
-      changeSleepAction(5000); 
+      game.lastActionTime = Date.now();
+      const useFullAndSleep = justAteAt > 0 && (Date.now() - justAteAt) < JUST_ATE_WINDOW_MS;
+      justAteAt = 0;
+      if (useFullAndSleep) {
+        log("밥 먹고 잠들었어요.. 기분 좋아요 😴");
+        changeSleepAction(5000, 'assets/hamster/overfed/full_and_sleep.png', 'full-and-sleep-adjust');
+      } else {
+        log("집에 들어가서 잠자기... Zzz +0");
+        changeSleepAction(5000);
+      }
       addExp(0);
     }
 
-    /* 그릇 클릭 핸들러 (A 버튼 기능) */
+    /* 그릇 클릭 - 10회 시 throw up, 1분 쿨다운 중 시 stop drink, 1분 후 다시 활성화 */
     function handleBowlClick() {
       if(game.isBusy) {
-        // 버튼이 안 눌러질 때 가끔씩 sad/angry 표시 (5% 확률, 70% sad, 30% angry)
         const lastEmotionTime = Math.max(game.lastSadTime, game.lastAngryTime);
         if(Math.random() < 0.05 && Date.now() - lastEmotionTime > 10000) {
           showSadOrAngryRandomly();
         }
         return;
       }
+      const daily = getDailyEatDrink();
+      const now = Date.now();
+      if (daily.eat >= MAX_EAT_BEFORE_THROWUP) {
+        if (daily.eatCooldownUntil && now > daily.eatCooldownUntil) {
+          daily.eat = 0;
+          daily.eatCooldownUntil = 0;
+          saveDailyEatDrink(daily);
+        } else if (daily.eatCooldownUntil && now <= daily.eatCooldownUntil) {
+          game.isBusy = true;
+          log("잠깐만요, 더 이상 못 먹어요! 😣");
+          hamster.classList.add('btn-test-stopdrink');
+          hamster.src = 'assets/hamster/overfed/stop drink.png';
+          hamster.classList.remove('bounce', 'sleeping');
+          hamster.onerror = function() {
+            hamster.src = './assets/hamster/normal.png';
+            hamster.classList.add('bounce');
+            hamster.classList.remove('btn-test-stopdrink');
+            game.isBusy = false;
+            hamster.onerror = null;
+          };
+          setTimeout(() => {
+            hamster.src = './assets/hamster/normal.png';
+            hamster.classList.add('bounce');
+            hamster.classList.remove('btn-test-stopdrink');
+            hamster.onerror = null;
+            game.isBusy = false;
+          }, 2500);
+          return;
+        } else {
+          game.isBusy = true;
+          log("너무 많이 먹었어요! 😵");
+          hamster.classList.add('btn-test-adjust');
+          changeAction('assets/hamster/overfed/throw up.png', 2500);
+          daily.eatCooldownUntil = now + EAT_DRINK_COOLDOWN_MS;
+          saveDailyEatDrink(daily);
+          setTimeout(() => { hamster.classList.remove('btn-test-adjust'); game.isBusy = false; }, 2500);
+          return;
+        }
+      }
       game.isBusy = true;
-      game.lastActionTime = Date.now(); // 액션 시간 업데이트
+      game.lastActionTime = Date.now();
+      daily.eat++;
+      saveDailyEatDrink(daily);
+      justAteAt = Date.now();
       
-      // 랜덤 해바라기씨 먹기 메시지
       const eatMessages = [
         "냠냠! 해바라기씨 맛있다 +10",
         "냠냠! 해바라기씨 맛있다 야르~ +10",
         "하루치 두쫀쿠 먹고 싶다 +10",
         "야미~ 야미~ 야미야미야미 +10"
       ];
-      
       const randomMessage = eatMessages[Math.floor(Math.random() * eatMessages.length)];
-      log(randomMessage);
-      
-      changeAction('./assets/eat.png', 2000);
+      log(randomMessage, { category: '밥먹기', xp: 10 });
+
+      changeAction('./assets/hamster/eat.png', 2000);
       showExpParticle(10);
       addExp(10);
-      updateStats(10, false);  /* 밥먹기: 목표 미포함 */
+      updateStats(10, false);
     }
 
-    /* 물 급수통 클릭 핸들러 */
+    /* 물 급수통 클릭 - 10회 시 throw up 2, 1분 쿨다운 중 시 stop drink, 1분 후 다시 활성화 */
     function handleWaterBottleClick() {
       if(game.isBusy) {
-        // 버튼이 안 눌러질 때 가끔씩 sad/angry 표시 (5% 확률, 70% sad, 30% angry)
         const lastEmotionTime = Math.max(game.lastSadTime, game.lastAngryTime);
         if(Math.random() < 0.05 && Date.now() - lastEmotionTime > 10000) {
           showSadOrAngryRandomly();
         }
         return;
       }
+      const daily = getDailyEatDrink();
+      const now = Date.now();
+      if (daily.drink >= MAX_DRINK_BEFORE_STOP) {
+        if (daily.drinkCooldownUntil && now > daily.drinkCooldownUntil) {
+          daily.drink = 0;
+          daily.drinkCooldownUntil = 0;
+          saveDailyEatDrink(daily);
+        } else if (daily.drinkCooldownUntil && now <= daily.drinkCooldownUntil) {
+          game.isBusy = true;
+          log("물 더 이상 마시기 싫어요! 😣");
+          hamster.classList.add('btn-test-stopdrink');
+          hamster.src = 'assets/hamster/overfed/stop drink.png';
+          hamster.classList.remove('bounce', 'sleeping', 'drinking');
+          hamster.onerror = function() {
+            hamster.src = './assets/hamster/normal.png';
+            hamster.classList.add('bounce');
+            hamster.classList.remove('btn-test-stopdrink');
+            game.isBusy = false;
+            hamster.onerror = null;
+          };
+          setTimeout(() => {
+            hamster.src = './assets/hamster/normal.png';
+            hamster.classList.add('bounce');
+            hamster.classList.remove('btn-test-stopdrink');
+            hamster.onerror = null;
+            game.isBusy = false;
+          }, 2500);
+          return;
+        } else {
+          game.isBusy = true;
+          log("물 너무 많이 마셨어요! 😵");
+          hamster.classList.add('btn-test-throwup2');
+          hamster.src = 'assets/hamster/overfed/throw up 2.png';
+          hamster.classList.remove('bounce', 'sleeping', 'drinking');
+          hamster.onerror = function() {
+            hamster.src = './assets/hamster/normal.png';
+            hamster.classList.add('bounce');
+            hamster.classList.remove('btn-test-throwup2');
+            game.isBusy = false;
+            hamster.onerror = null;
+          };
+          daily.drinkCooldownUntil = now + EAT_DRINK_COOLDOWN_MS;
+          saveDailyEatDrink(daily);
+          setTimeout(() => {
+            hamster.src = './assets/hamster/normal.png';
+            hamster.classList.add('bounce');
+            hamster.classList.remove('btn-test-throwup2');
+            hamster.onerror = null;
+            game.isBusy = false;
+          }, 2500);
+          return;
+        }
+      }
       game.isBusy = true;
-      game.lastActionTime = Date.now(); // 액션 시간 업데이트
+      game.lastActionTime = Date.now();
+      daily.drink++;
+      saveDailyEatDrink(daily);
       
-      // 20% 확률로 drinkwater.png 사용, 80% 확률로 drink.png 사용
       const useDrinkWater = Math.random() < 0.2;
-      const drinkImage = useDrinkWater ? './assets/drinkwater.png' : './assets/drink.png';
-      
-      // drinkwater일 때와 drink일 때 다른 메시지 표시
+      const drinkImage = useDrinkWater ? './assets/hamster/drinkwater.png' : './assets/hamster/drink.png';
       if(useDrinkWater) {
-        log("벌컥벌컥! 물을 마시는 중... +10");
+        log("벌컥벌컥! 물을 마시는 중... +10", { category: '물마시기', xp: 10 });
       } else {
-        log("물을 마시는 중... +10");
+        log("물을 마시는 중... +10", { category: '물마시기', xp: 10 });
       }
       changeDrinkAction(drinkImage, 2000);
       showExpParticle(10);
       addExp(10);
-      updateStats(10, false);  /* 물마시기: 목표 미포함 */
+      updateStats(10, false);
+    }
+
+    /* 물 10회 이상 시 물 급수통 쪽에 throw up 2 오버레이 표시 */
+    function showThrowUp2NearWaterBottle() {
+      const screenTop = document.querySelector('.screen-top');
+      if (!screenTop) return;
+      const overlay = document.createElement('div');
+      overlay.className = 'throwup2-overlay';
+      const img = document.createElement('img');
+      img.src = 'assets/hamster/overfed/throw up 2.png';
+      img.alt = '';
+      overlay.appendChild(img);
+      screenTop.appendChild(overlay);
+      setTimeout(() => overlay.remove(), 2500);
     }
 
     /* 이미지 사라짐 방지 */
     function changeAction(imgSrc, duration) {
-      const originalSrc = './assets/normal.png';
+      const originalSrc = './assets/hamster/normal.png';
       hamster.src = imgSrc;
       hamster.classList.remove('bounce', 'sleeping');
       
@@ -1606,20 +1927,22 @@
       }, duration);
     }
 
-    /* 잠자는 모습 (오른쪽 집 안) */
-    function changeSleepAction(duration) {
-      const originalSrc = './assets/normal.png';
-      hamster.src = './assets/sleep.png';
+    /* 잠자는 모습 (오른쪽 집 안) - sleepImageSrc 생략 시 sleep.png, 밥 먹고 잠들면 full_and_sleep.png. adjustClass 있으면 해당 클래스로 위치·크기 적용 */
+    function changeSleepAction(duration, sleepImageSrc, adjustClass) {
+      const originalSrc = './assets/hamster/normal.png';
+      const sleepImg = sleepImageSrc || './assets/hamster/sleep.png';
+      hamster.src = sleepImg;
       hamster.classList.remove('bounce');
       hamster.classList.add('sleeping');
+      if (adjustClass) hamster.classList.add(adjustClass);
       
-      // 이미지 로드 실패 시 원상복구
       hamster.onerror = function() {
-        console.warn("이미지 로드 실패: sleep.png");
+        console.warn("이미지 로드 실패:", sleepImg);
         log("⚠ 오류: 잠자는 이미지가 없어요!");
         hamster.src = originalSrc;
         hamster.classList.add('bounce');
         hamster.classList.remove('sleeping');
+        if (adjustClass) hamster.classList.remove(adjustClass);
         game.isBusy = false;
       };
 
@@ -1627,14 +1950,15 @@
         hamster.src = originalSrc;
         hamster.classList.add('bounce');
         hamster.classList.remove('sleeping');
+        if (adjustClass) hamster.classList.remove(adjustClass);
         game.isBusy = false;
-        hamster.onerror = null; 
+        hamster.onerror = null;
       }, duration);
     }
 
     /* 물 마시는 모습 (물 급수통 위치로 이동) */
     function changeDrinkAction(imgSrc, duration) {
-      const originalSrc = './assets/normal.png';
+      const originalSrc = './assets/hamster/normal.png';
       
       // 이미지에 따라 다른 크기 클래스 설정
       const isDrinkWater = imgSrc.includes('drinkwater');
@@ -1693,8 +2017,8 @@
       // CSS 변수에서 오프셋 값 가져오기
       // 현재 최적 위치: X=-115px, Y=-90px (물 급수통에 어울리는 위치)
       const rootStyles = getComputedStyle(document.documentElement);
-      const offsetX = parseFloat(rootStyles.getPropertyValue('--water-drop-offset-x')) || -135;
-      const offsetY = parseFloat(rootStyles.getPropertyValue('--water-drop-offset-y')) || -108;
+      const offsetX = parseFloat(rootStyles.getPropertyValue('--water-drop-offset-x')) || -80;
+      const offsetY = parseFloat(rootStyles.getPropertyValue('--water-drop-offset-y')) || -65;
       
       // 물방울이 떨어지는 시작 위치 (물 급수통 아래쪽 중앙)
       // 물 급수통 클릭 영역의 중앙 X 위치, 하단 Y 위치
@@ -1781,8 +2105,8 @@
       const randomMessage = sadMessages[Math.floor(Math.random() * sadMessages.length)];
       log(randomMessage);
       
-      const originalSrc = './assets/normal.png';
-      hamster.src = 'assets/sad.png';
+      const originalSrc = './assets/hamster/normal.png';
+      hamster.src = 'assets/hamster/sad.png';
       hamster.classList.remove('bounce', 'sleeping', 'drinking');
       
       // 이미지 로드 실패 시 원상복구
@@ -1830,8 +2154,8 @@
       const randomMessage = angryMessages[Math.floor(Math.random() * angryMessages.length)];
       log(randomMessage);
       
-      const originalSrc = './assets/normal.png';
-      hamster.src = 'assets/back.png';
+      const originalSrc = './assets/hamster/normal.png';
+      hamster.src = 'assets/hamster/back.png';
       hamster.classList.remove('bounce', 'sleeping', 'drinking');
       hamster.classList.add('angry');
       
@@ -1881,8 +2205,8 @@
       ];
       log(angryMessages[Math.floor(Math.random() * angryMessages.length)]);
       
-      const originalSrc = './assets/normal.png';
-      hamster.src = './assets/angry.png';
+      const originalSrc = './assets/hamster/normal.png';
+      hamster.src = './assets/hamster/angry.png';
       hamster.classList.remove('bounce', 'sleeping', 'drinking');
       
       const speechBubble = document.getElementById('angrySpeechBubble');
@@ -1922,8 +2246,8 @@
       
       log(isWiggle ? '🍑 하루치 엉덩이가 씰룩씰룩~' : '🍑 하루치 토실토실한 엉덩이!');
       
-      const originalSrc = './assets/normal.png';
-      hamster.src = 'assets/back.png';
+      const originalSrc = './assets/hamster/normal.png';
+      hamster.src = 'assets/hamster/back.png';
       hamster.classList.remove('bounce', 'sleeping', 'drinking', 'angry');
       hamster.classList.add('butt');
       if(isWiggle) hamster.classList.add('butt-wiggle');
@@ -2534,22 +2858,28 @@
       updateGoalUI();
     }
 
-    function addToLogHistory(msg, kind) {
-      logHistory.unshift({ msg, kind: kind || 'normal' });
+    function addToLogHistory(msg, kind, category, xp) {
+      logHistory.unshift({
+        msg,
+        kind: kind || 'normal',
+        category: category || null,
+        xp: xp != null ? xp : null
+      });
       if (logHistory.length > 200) logHistory.pop();
     }
 
-    function log(msg) {
-      addToLogHistory(msg, 'normal');
+    function log(msg, opts) {
+      opts = opts || {};
+      addToLogHistory(msg, opts.kind || 'normal', opts.category || null, opts.xp != null ? opts.xp : null);
       const item = document.createElement('div');
-      item.className = 'log-item new';
+      item.className = 'log-item new' + (opts.category ? ' log-cat-' + opts.category : '');
       item.innerText = `> ${msg}`;
       uiLog.prepend(item);
       if(uiLog.children.length > 20) uiLog.removeChild(uiLog.lastChild);
     }
 
     function logLevelUp(msg) {
-      addToLogHistory(msg, 'level-up');
+      addToLogHistory(msg, 'level-up', '레벨업', null);
       const item = document.createElement('div');
       item.className = 'log-item new level-up';
       item.innerText = `> ${msg}`;
@@ -2558,7 +2888,7 @@
     }
 
     function logImportant(msg) {
-      addToLogHistory(msg, 'important');
+      addToLogHistory(msg, 'important', null, null);
       const item = document.createElement('div');
       item.className = 'log-item new important';
       item.innerText = `> ${msg}`;
@@ -2569,13 +2899,31 @@
     function openLogModal() {
       const content = document.getElementById('logModalContent');
       const all = logHistory.length ? logHistory : [
-        { msg: '시스템 가동..', kind: 'normal' },
-        { msg: '하루치가 기다려요!', kind: 'normal' }
+        { msg: '시스템 가동..', kind: 'normal', category: null, xp: null },
+        { msg: '하루치가 기다려요!', kind: 'normal', category: null, xp: null }
       ];
-      content.innerHTML = all.map(e => {
-        const c = e.kind === 'level-up' ? 'level-up' : e.kind === 'important' ? 'important' : '';
-        return `<div class="log-line ${c}">> ${e.msg}</div>`;
-      }).join('');
+      const taskLogs = all.filter(e => e.category && LOG_CATEGORY_TASK.includes(e.category));
+      const clickLogs = all.filter(e => e.category && LOG_CATEGORY_CLICK.includes(e.category));
+      const otherLogs = all.filter(e => !e.category || (!LOG_CATEGORY_TASK.includes(e.category) && !LOG_CATEGORY_CLICK.includes(e.category)));
+
+      function renderSection(title, entries, sectionClass) {
+        if (entries.length === 0) return '';
+        return `
+          <div class="log-section ${sectionClass}">
+            <div class="log-section-title">${title}</div>
+            ${entries.map(e => {
+              const c = e.kind === 'level-up' ? 'level-up' : e.kind === 'important' ? 'important' : '';
+              const tag = e.category ? `<span class="log-cat-tag">${e.category}</span>` : '';
+              const xpStr = (e.xp != null && e.msg.indexOf('+' + e.xp) === -1) ? ` <span class="log-xp">+${e.xp} XP</span>` : '';
+              return `<div class="log-line ${c}">${tag}> ${e.msg}${xpStr}</div>`;
+            }).join('')}
+          </div>`;
+      }
+
+      content.innerHTML =
+        renderSection('📌 할일 완료 경험치', taskLogs, 'log-section-task') +
+        renderSection('🖱 클릭 경험치 (밥/물/쓰다듬기)', clickLogs, 'log-section-click') +
+        renderSection('📋 기타', otherLogs, 'log-section-other');
       document.getElementById('logModal').classList.add('show');
     }
 
