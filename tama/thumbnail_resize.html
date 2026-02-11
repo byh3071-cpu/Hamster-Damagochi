@@ -19,7 +19,7 @@
 </head>
 <body>
   <h1>OG 썸네일 생성기</h1>
-  <p>카톡 링크 미리보기용: 1200×822 비율, 내용 48% 크기로 축소 (HARUCHI·햄스터·START GAME 전체 노출)</p>
+  <p>카톡 링크 미리보기용: 1200×822 비율, 내용 65% 크기</p>
   <div class="btn-row">
     <div>
       <div class="step">1단계</div>
@@ -36,7 +36,7 @@
 
   <script>
     const TARGET_W = 1200, TARGET_H = 822;  // 카톡 미리보기 비율 1.46:1
-    const PADDING = 0.48;  // 48% 안에 내용 → 위아래 전체 보이도록
+    const PADDING = 0.65;  // 65% - 이미지 더 크게 (잘리면 값 낮추기)
     let hasImage = false;
 
     function draw(img) {
