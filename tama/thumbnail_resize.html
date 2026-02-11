@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <title>OG 썸네일 생성 (카톡용 1200x822)</title>
+  <title>OG 썸네일 생성 (카톡용 1200x600)</title>
   <style>
     body { font-family: sans-serif; padding: 20px; background: #222; color: #fff; }
     #canvas { display: block; margin: 20px 0; border: 2px solid #666; max-width: 100%; max-height: 50vh; }
@@ -19,7 +19,7 @@
 </head>
 <body>
   <h1>OG 썸네일 생성기</h1>
-  <p>카톡 잘림 방지: 1200×800 + 내용 30% 크기로 축소 (전체가 보이도록)</p>
+  <p>카톡 잘림 방지: 1200×600 + 내용 30% 크기로 축소 (전체가 보이도록)</p>
   <div class="btn-row">
     <div>
       <div class="step">1단계</div>
@@ -32,10 +32,10 @@
     </div>
   </div>
   <p style="color:#8bac0f; margin-top:0;">↓ 아래 미리보기 확인 후 저장 버튼 클릭</p>
-  <canvas id="canvas" width="1200" height="822"></canvas>
+  <canvas id="canvas" width="1200" height="600"></canvas>
 
   <script>
-    const TARGET_W = 1000, TARGET_H = 600;  // 카톡 미리보기 비율 1.46:1
+    const TARGET_W = 1200, TARGET_H = 600;  // 카톡 미리보기 비율 1.46:1
     const PADDING = 0.50;  // 55% 안에 내용 배치 → 크기 축소로 잘림 방지
     let hasImage = false;
 
