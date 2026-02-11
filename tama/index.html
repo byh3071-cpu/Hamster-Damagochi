@@ -423,11 +423,11 @@
       pointer-events: none; 
     }
     .layer-frame img.frame-img { width: 100%; display: block; }
-    /* 게임기 상단 로고 (logo2.png - 크기/위치 조정 패널로 변경) */
+    /* 게임기 상단 로고 (logo2.png - 기본값: 왼쪽) localStorage 없을 때 Notion 임베드에서 main_logo와 겹치지 않도록 */
     .device-logo {
       position: absolute;
       top: var(--logo-top, 2%);
-      left: var(--logo-left, 50%);
+      left: var(--logo-left, 35%);
       transform: translateX(-50%);
       width: var(--logo-width, auto);
       max-width: var(--logo-max-width, 100px);
@@ -436,11 +436,11 @@
       z-index: 101;
       image-rendering: pixelated;
     }
-    /* main_logo 전용 (크기/위치 조정 패널로 변경) */
+    /* main_logo 전용 (기본값: 오른쪽) Notion 임베드 시 localStorage 없어도 logo2와 겹치지 않도록 */
     .main-logo {
       position: absolute;
-      top: var(--main-logo-top, 1.5%);
-      left: var(--main-logo-left, 50%);
+      top: var(--main-logo-top, 2%);
+      left: var(--main-logo-left, 65%);
       transform: translateX(-50%);
       width: var(--main-logo-width, auto);
       max-width: var(--main-logo-max-width, 130px);
