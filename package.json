@@ -2,6 +2,9 @@
   "name": "hamster-damagochi",
   "version": "1.0.0",
   "type": "module",
+  "scripts": {
+    "start": "npx serve tama -l 5500"
+  },
   "dependencies": {
     "@notionhq/client": "^2.2.15"
   }

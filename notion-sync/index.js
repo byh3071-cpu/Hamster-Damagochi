@@ -18,6 +18,28 @@ if (missing.length > 0) {
 // 노션 클라이언트 초기화
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
+/** HARUCHI_PAGE_ID가 DB ID인 경우, 첫 번째 행의 페이지 ID로 자동 변환 */
+let _resolvedHaruchiPageId = null;
+async function resolveHaruchiPageId() {
+  if (_resolvedHaruchiPageId) return _resolvedHaruchiPageId;
+  const id = process.env.HARUCHI_PAGE_ID?.trim();
+  if (!id) return null;
+  try {
+    await notion.pages.retrieve({ page_id: id });
+    _resolvedHaruchiPageId = id;
+  } catch (e) {
+    if (e.message?.includes('is a database')) {
+      const res = await notion.databases.query({ database_id: id });
+      if (res.results.length > 0) {
+        _resolvedHaruchiPageId = res.results[0].id;
+      } else {
+        console.warn('⚠️ 하루치 DB에 행이 없습니다. XP 로그는 하루치 연결 없이 생성됩니다.');
+      }
+    }
+  }
+  return _resolvedHaruchiPageId;
+}
+
 // ==========================================
 // ⚙️ CONFIG: 데이터베이스 속성 매핑 (이미지 기반)
 // ==========================================
@@ -102,6 +124,8 @@ async function syncGamification() {
   console.log('🐹 [Start] 하루치 OS 동기화 시작...');
 
   try {
+    await resolveHaruchiPageId();
+
     // 1. 일반 DB 처리 (할일, 루틴, 운동, 독서세션)
     await processSimpleDB(CONFIG.sources.todo);
     await processSimpleDB(CONFIG.sources.routine);
@@ -269,13 +293,18 @@ async function createXPLogAndGrant({ title, type, xp, sourceRelationKey, sourceP
       [CONFIG.xpLog.dateKey]: { date: { start: today } },
       [CONFIG.xpLog.typeKey]: { select: { name: type } },
       [CONFIG.xpLog.amountKey]: { number: xp },
-      [CONFIG.xpLog.uniqueKey]: { rich_text: [{ text: { content: uniqueKey } }] },
-
-      // [핵심] 하루치 캐릭터 연결
-      [CONFIG.xpLog.haruchiRelationKey]: {
-        relation: [{ id: process.env.HARUCHI_PAGE_ID }]
-      }
+      [CONFIG.xpLog.uniqueKey]: { rich_text: [{ text: { content: uniqueKey } }] }
     };
+
+    // [핵심] 하루치 캐릭터 연결 (DB ID면 첫 행 자동 사용, SKIP_HARUCHI_RELATION=true 시 생략)
+    if (process.env.SKIP_HARUCHI_RELATION !== 'true') {
+      const haruchiId = _resolvedHaruchiPageId || process.env.HARUCHI_PAGE_ID;
+      if (haruchiId) {
+        props[CONFIG.xpLog.haruchiRelationKey] = {
+          relation: [{ id: haruchiId }]
+        };
+      }
+    }
 
     // 소스 DB 연결 추가
     if (sourceRelationKey) {
